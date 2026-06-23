@@ -1,0 +1,149 @@
+import Link             from 'next/link'
+import { redirect, notFound } from 'next/navigation'
+import type { Metadata } from 'next'
+import { createClient } from '@/lib/supabase/server'
+import { formatDate, formatBytes } from '@/lib/format'
+import { healthColor } from '@/lib/kpi-engine'
+import {
+  SectionLabel, StatusBadge, DatasetStatusBadge, EmptyState, Card,
+} from '@/components/dashboard/PagePrimitives'
+
+export const metadata: Metadata = { title: 'Project' }
+
+interface Props { params: Promise<{ id: string }> }
+
+type ProjectDetail = {
+  id: string; name: string; description: string | null; color: string
+  created_at: string; updated_at: string
+  datasets: {
+    id: string; name: string; file_name: string; file_type: string
+    row_count: number; file_size: number; status: string; created_at: string
+  }[]
+  reports: {
+    id: string; name: string; health_score: number
+    business_status: string; is_starred: boolean; created_at: string
+  }[]
+}
+
+export default async function ProjectDetailPage({ params }: Props) {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+  if (!authUser) redirect('/login')
+
+  const { data, error } = await supabase
+    .from('projects')
+    .select(`
+      id, name, description, color, created_at, updated_at,
+      datasets(id, name, file_name, file_type, row_count, file_size, status, created_at),
+      reports(id, name, health_score, business_status, is_starred, created_at)
+    `)
+    .eq('id', id)
+    .eq('owner_id', authUser.id)
+    .single()
+
+  if (error || !data) notFound()
+
+  const project  = data as ProjectDetail
+  const datasets = project.datasets ?? []
+  const reports  = project.reports  ?? []
+
+  return (
+    <div className="p-6 lg:p-10 max-w-[1100px]">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 mb-6 text-[12px]" style={{ color: 'var(--slate)' }}>
+        <Link href="/projects" style={{ color: 'var(--sapphire)' }}>Projects</Link>
+        <span>/</span>
+        <span style={{ color: 'var(--silver)' }}>{project.name}</span>
+      </div>
+
+      {/* Project header */}
+      <div className="flex items-start gap-4 mb-8 flex-wrap">
+        <div className="w-3.5 h-3.5 rounded-full mt-2 shrink-0" style={{ background: project.color }} />
+        <div className="flex-1">
+          <h1 className="font-display text-2xl lg:text-[28px] leading-tight mb-1" style={{ color: 'var(--platinum)' }}>
+            {project.name}
+          </h1>
+          {project.description && (
+            <p className="text-[13px]" style={{ color: 'var(--silver)' }}>{project.description}</p>
+          )}
+          <p className="text-[11px] font-data mt-2" style={{ color: 'var(--slate)' }}>
+            Created {formatDate(project.created_at)}
+          </p>
+        </div>
+      </div>
+
+      {/* ── Datasets ── */}
+      <SectionLabel num="01" label={`Datasets (${datasets.length})`} />
+      {datasets.length === 0 ? (
+        <EmptyState
+          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" /></svg>}
+          title="No datasets yet"
+          body="Upload a CSV or Excel file to start generating intelligence reports."
+        />
+      ) : (
+        <Card padding="p-0" className="mb-8 overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr style={{ background: 'var(--surface-3)', borderBottom: '1px solid var(--line-1)' }}>
+                {['Name','Type','Rows','Size','Status','Uploaded'].map(h => (
+                  <th key={h} className="text-left px-4 py-3 font-data text-[9.5px] uppercase tracking-[1.6px]" style={{ color: 'var(--slate)' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {datasets.map((d, i) => (
+                <tr key={d.id} style={{ borderTop: i > 0 ? '1px solid var(--line-1)' : undefined }}>
+                  <td className="px-4 py-3">
+                    <div className="text-[13px] font-medium" style={{ color: 'var(--platinum)' }}>{d.name}</div>
+                    <div className="text-[11px] font-data" style={{ color: 'var(--slate)' }}>{d.file_name}</div>
+                  </td>
+                  <td className="px-4 py-3 font-data text-[11px] uppercase" style={{ color: 'var(--silver)' }}>{d.file_type}</td>
+                  <td className="px-4 py-3 font-data text-[12px]" style={{ color: 'var(--silver)' }}>{d.row_count.toLocaleString()}</td>
+                  <td className="px-4 py-3 font-data text-[12px]" style={{ color: 'var(--silver)' }}>{formatBytes(d.file_size)}</td>
+                  <td className="px-4 py-3"><DatasetStatusBadge status={d.status} /></td>
+                  <td className="px-4 py-3 font-data text-[11px]" style={{ color: 'var(--slate)' }}>{formatDate(d.created_at)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      )}
+
+      {/* ── Reports ── */}
+      <SectionLabel num="02" label={`Reports (${reports.length})`} />
+      {reports.length === 0 ? (
+        <EmptyState
+          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>}
+          title="No reports saved"
+          body="Upload a dataset then generate and save an intelligence report."
+        />
+      ) : (
+        <div className="flex flex-col gap-2">
+          {reports.map(r => (
+            <Link key={r.id} href={`/reports/${r.id}`}
+              className="flex items-center gap-4 p-4 rounded-xl transition-colors group"
+              style={{ background: 'var(--surface-2)', border: '1px solid var(--line-1)' }}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-data text-[11px] font-bold"
+                style={{ background: `${healthColor(r.health_score)}18`, border: `1.5px solid ${healthColor(r.health_score)}55`, color: healthColor(r.health_score) }}>
+                {r.health_score}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[13px] font-medium truncate" style={{ color: 'var(--platinum)' }}>{r.name}</span>
+                  {r.is_starred && (
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--gold)" stroke="var(--gold)" strokeWidth="1.5" aria-label="Starred">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                  )}
+                </div>
+                <div className="text-[11px] font-data mt-0.5" style={{ color: 'var(--slate)' }}>{formatDate(r.created_at)}</div>
+              </div>
+              <StatusBadge status={r.business_status} />
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
