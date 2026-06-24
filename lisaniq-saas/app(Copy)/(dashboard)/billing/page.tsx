@@ -59,7 +59,9 @@ export default async function BillingPage() {
       .eq('user_id', authUser.id)
       .maybeSingle(),
     Promise.all([
+      // @ts-ignore
       supabase.rpc('count_user_datasets', { p_user_id: authUser.id }),
+      // @ts-ignore
       supabase.rpc('count_user_reports',  { p_user_id: authUser.id }),
     ]),
   ])
