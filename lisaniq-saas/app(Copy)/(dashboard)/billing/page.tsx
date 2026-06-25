@@ -65,10 +65,8 @@ export default async function BillingPage() {
       supabase.rpc('count_user_reports',  { p_user_id: authUser.id }),
     ]),
   ])
-  // @ts-ignore
-  const currentPlan     = (profileRes.data?.plan ?? 'free') as 'free' | 'pro' | 'enterprise'
-  // @ts-ignore
-  const hasStripeCustomer = !!profileRes.data?.stripe_customer_id
+  const currentPlan     = ((profileRes as any).data?.plan ?? 'free') as 'free' | 'pro' | 'enterprise'
+  const hasStripeCustomer = !!(profileRes as any).data?.stripe_customer_id
   const sub             = subRes.data as SubRow | null
   const datasetCount    = (usageRes[0].data as number) ?? 0
   const reportCount     = (usageRes[1].data as number) ?? 0
