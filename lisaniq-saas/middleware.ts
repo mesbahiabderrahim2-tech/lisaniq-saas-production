@@ -1,12 +1,11 @@
-import { createServerClient } from '@supabase/supabase-js'
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+/**
+ * Middleware - runs on every matched request before page rendering.
+ */
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
+  let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,36 +16,42 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set({ name, value, ...options }))
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-          cookiesToSet.forEach(({ name, value, options }) => response.cookies.set({ name, value, ...options }))
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          )
+          supabaseResponse = NextResponse.next({ request })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options as any)
+          )
         },
       },
     }
   )
 
-  // جلب بيانات المستخدم بأمان للتحقق من الجلسة الشخصية
-  const { data: { user } } = await supabase.auth.getUser()
+  // Refresh session - IMPORTANT: do not remove, keeps tokens alive
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  const isDashboardRoute = request.nextUrl.pathname.startsWith('/dashboard')
-  const isAuthRoute = request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/sign-up'
+  const { pathname } = request.nextUrl
 
-  // 1. حماية لوحة التحكم: إذا لم يكن هناك مستخدم، وجهه إجبارياً إلى صفحة تسجيل الدخول
-  if (!user && isDashboardRoute) {
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
+  // --- Route Protection Rules --------------------------------------
 
-  // 2. إذا كان المستخدم مسجلاً ويحاول فتح صفحات المصادقة، وجهه للدشبرد تلقائياً
-  if (user && isAuthRoute) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
-  }
+  const isAuthRoute =
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/register') ||
+    pathname.startsWith('/reset-password')
 
-  // 3. معالجة المسار الرئيسي (/) لمنع الـ 404 في حال عدم وجود صفحة هبوط عامة مبنية
-  if (request.nextUrl.pathname === '/') {
+  const isProtectedRoute =
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/projects') ||
+    pathname.startsWith('/reports') ||
+    pathname.startsWith('/settings')
+
+  const isApiRoute = pathname.startsWith('/api')
+
+  // 1. معالجة المسار الرئيسي (/) لمنع الـ 404 والـ 500 نهائياً
+  if (pathname === '/') {
     if (user) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     } else {
@@ -54,17 +59,34 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return response
+  // 2. إذا كان المستخدم غير مسجل ويحاول دخول مسار محمي
+  if (!user && isProtectedRoute) {
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('next', pathname) // حفظ الوجهة المقصودة
+    return NextResponse.redirect(loginUrl)
+  }
+
+  // 3. إذا كان المستخدم مسجلاً ويحاول زيارة صفحات تسجيل الدخول
+  if (user && isAuthRoute) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
+  // 4. مسارات الـ API: ربط معرف المستخدم بالـ Headers
+  if (isApiRoute && user) {
+    supabaseResponse.headers.set('x-user-id', user.id)
+  }
+
+  return supabaseResponse
 }
 
 export const config = {
   matcher: [
     /*
-     * مطابقة جميع مسارات الطلبات باستثناء المسارات التي تبدأ بـ:
-     * - _next/static (ملفات الاستاتيك)
-     * - _next/image (تحسين الصور)
-     * - favicon.ico (أيقونة الموقع)
-     * - الملفات العامة (svg, png, jpg, jpeg, gif, webp)
+     * Watch every request except:
+     * - _next/static (static files)
+     * - _next/image (image optimization)
+     * - favicon.ico
+     * - public folder assets
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
