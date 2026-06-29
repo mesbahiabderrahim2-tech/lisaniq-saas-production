@@ -1,16 +1,12 @@
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
 
-/**
- * Middleware — runs on every matched request before page rendering.
- *
- * Responsibilities:
- *   1. Refresh the Supabase session (keeps tokens fresh)
- *   2. Redirect unauthenticated users away from protected routes
- *   3. Redirect authenticated users away from auth pages
- */
 export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request })
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,67 +16,55 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(cookiesToSet: Array<{ name: string; value: string; options?: Record<string, unknown> }>) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          )
-          supabaseResponse = NextResponse.next({ request })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options as Parameters<typeof supabaseResponse.cookies.set>[2])
-          )
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set({ name, value, ...options }))
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          })
+          cookiesToSet.forEach(({ name, value, options }) => response.cookies.set({ name, value, ...options }))
         },
       },
     }
   )
 
-  // Refresh session — IMPORTANT: do not remove, keeps tokens alive
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // جلب بيانات المستخدم بأمان للتحقق من الجلسة الشخصية
+  const { data: { user } } = await supabase.auth.getUser()
 
-  const { pathname } = request.nextUrl
+  const isDashboardRoute = request.nextUrl.pathname.startsWith('/dashboard')
+  const isAuthRoute = request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/sign-up'
 
-  // ── Route Protection Rules ─────────────────────────────────────
-
-  const isAuthRoute      = pathname.startsWith('/login') ||
-                           pathname.startsWith('/register') ||
-                           pathname.startsWith('/reset-password')
-
-  const isProtectedRoute = pathname.startsWith('/dashboard') ||
-                           pathname.startsWith('/projects') ||
-                           pathname.startsWith('/reports') ||
-                           pathname.startsWith('/settings')
-
-  const isApiRoute       = pathname.startsWith('/api')
-
-  // Unauthenticated user attempting a protected route → redirect to login
-  if (!user && isProtectedRoute) {
-    const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('next', pathname)   // preserve intended destination
-    return NextResponse.redirect(loginUrl)
+  // 1. حماية لوحة التحكم: إذا لم يكن هناك مستخدم، وجهه إجبارياً إلى صفحة تسجيل الدخول
+  if (!user && isDashboardRoute) {
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Authenticated user visiting auth pages → redirect to dashboard
+  // 2. إذا كان المستخدم مسجلاً ويحاول فتح صفحات المصادقة، وجهه للدشبرد تلقائياً
   if (user && isAuthRoute) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // API routes: attach user id header for use in Route Handlers
-  if (isApiRoute && user) {
-    supabaseResponse.headers.set('x-user-id', user.id)
+  // 3. معالجة المسار الرئيسي (/) لمنع الـ 404 في حال عدم وجود صفحة هبوط عامة مبنية
+  if (request.nextUrl.pathname === '/') {
+    if (user) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    } else {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
   }
 
-  return supabaseResponse
+  return response
 }
 
 export const config = {
   matcher: [
     /*
-     * Match every request except:
-     *   - _next/static (static files)
-     *   - _next/image (image optimization)
-     *   - favicon.ico
-     *   - public folder assets
+     * مطابقة جميع مسارات الطلبات باستثناء المسارات التي تبدأ بـ:
+     * - _next/static (ملفات الاستاتيك)
+     * - _next/image (تحسين الصور)
+     * - favicon.ico (أيقونة الموقع)
+     * - الملفات العامة (svg, png, jpg, jpeg, gif, webp)
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
