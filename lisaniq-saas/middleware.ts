@@ -3,10 +3,6 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 /**
  * Middleware - runs on every matched request before page rendering.
- * * Responsibilities:
- * 1. Refresh the Supabase session (keeps tokens fresh)
- * 2. Redirect unauthenticated users away from protected routes
- * 3. Redirect authenticated users away from auth pages
  */
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -54,19 +50,28 @@ export async function middleware(request: NextRequest) {
 
   const isApiRoute = pathname.startsWith('/api')
 
-  // Unauthenticated user attempting a protected route -> redirect to login
+  // 1. معالجة المسار الرئيسي (/) لمنع الـ 404 والـ 500 نهائياً
+  if (pathname === '/') {
+    if (user) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    } else {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
+
+  // 2. إذا كان المستخدم غير مسجل ويحاول دخول مسار محمي
   if (!user && isProtectedRoute) {
     const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('next', pathname) // preserve intended destination
+    loginUrl.searchParams.set('next', pathname) // حفظ الوجهة المقصودة
     return NextResponse.redirect(loginUrl)
   }
 
-  // Authenticated user visiting auth pages -> redirect to dashboard
+  // 3. إذا كان المستخدم مسجلاً ويحاول زيارة صفحات تسجيل الدخول
   if (user && isAuthRoute) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // API routes: attach user id header for use in Route Handlers
+  // 4. مسارات الـ API: ربط معرف المستخدم بالـ Headers
   if (isApiRoute && user) {
     supabaseResponse.headers.set('x-user-id', user.id)
   }
