@@ -1,99 +1,103 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Plus, Folder, Calendar, FileText, ArrowRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { CreateProjectModal } from '@/components/project/CreateProjectModal'
+import React, { useState } from 'react';
+import { Plus, Folder, Calendar, ArrowRight } from 'lucide-react';
 
 // واجهة تعريفية للمشاريع المسترجعة من قاعدة البيانات
 interface Project {
-  id: string
-  name: string
-  description: string | null
-  created_at: string
-  datasets_count?: number
-  reports_count?: number
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+  datasets_count?: number;
+  reports_count?: number;
 }
 
 export default function ProjectsPage() {
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [projects, setProjects] = useState<Project[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <div className="space-y-8 p-6 max-w-7xl mx-auto">
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', fontFamily: 'sans-serif', direction: 'rtl' }}>
+      
       {/* الهيدر العلوي لصفحة المشاريع */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b pb-5">
+      <div style={{ display: 'flex', justifyContent: 'between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '1.25rem', marginBottom: '2rem' }}>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">المشاريع</h1>
-          <p className="text-muted-foreground mt-1">
-            إدارة وتحليل حملاتك التسيقية ومستنداتك الذكية في مكان واحد.
-          </p>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111' }}>المشاريع</h1>
+          <p style={{ color: '#666', marginTop: '0.25rem' }}>إدارة وتحليل حملاتك التسويقية ومستنداتك الذكية في مكان واحد</p>
         </div>
         
-        {/* تم إصلاح هذا الزر لفتح نافذة الرفع والتحليل مباشرة لمنع الـ 404 */}
-        <Button onClick={() => setIsCreateModalOpen(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
+        {/* زر إنشاء مشروع - تم تحويله إلى زر عادي لتجنب الخطأ */}
+        <button 
+          onClick={() => setIsCreateModalOpen(true)} 
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#0070f3', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}
+        >
+          <Plus size={16} />
           مشروع جديد
-        </Button>
+        </button>
       </div>
 
       {/* عرض المشاريع أو شاشة الحالة الفارغة */}
       {projects.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center text-center p-12 border-dashed">
-          <CardHeader>
-            <div className="mx-auto p-4 bg-primary/10 text-primary rounded-full mb-4">
-              <Folder className="h-12 w-12" />
-            </div>
-            <CardTitle className="text-xl">لا توجد مشاريع حالياً</CardTitle>
-            <CardDescription className="max-w-sm mt-2">
-              ابدأ بإنشاء مشروعك الأول ورفع ملفات الـ PDF أو البيانات التسويقية ليقوم محرك LisanIQ بتحليلها فوراً.
-            </CardDescription>
-          </CardHeader>
-          <CardFooter>
-            <Button onClick={() => setIsCreateModalOpen(true)} className="gap-2">
-              <Plus className="h-4 w-4" />
-              أنشئ مشروعك الأول
-            </Button>
-          </CardFooter>
-        </Card>
+        <div style={{ border: '2px dashed #eaeaea', borderRadius: '12px', padding: '3rem', textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>
+          <div style={{ background: '#f0f7ff', width: '4rem', height: '4rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
+            <Folder size={32} color="#0070f3" />
+          </div>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>لا توجد مشاريع حالياً</h2>
+          <p style={{ color: '#666', fontSize: '0.875rem', marginBottom: '1.5rem' }}>قم بتحليل فوراً لملفات LisaniQ أو البيانات التسويقية لتقوم محركات PDF فوراً بإنشاء مشروعك الأول ورفع ملفات الـ</p>
+          
+          <button 
+            onClick={() => setIsCreateModalOpen(true)} 
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#0070f3', color: '#fff', border: 'none', padding: '0.5rem 1.25rem', borderRadius: '6px', cursor: 'pointer', margin: '0 auto' }}
+          >
+            <Plus size={16} />
+            أنشئ مشروعك الأول
+          </button>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
           {projects.map((project) => (
-            <Card key={project.id} className="hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold truncate">{project.name}</CardTitle>
-                <CardDescription className="line-clamp-2 h-10 mt-1">
-                  {project.description || 'لا يوجد وصف للمشروع'}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground space-y-2 border-t pt-4">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <span>{new Date(project.created_at).toLocaleDateString('ar-EG')}</span>
-                </div>
-                <div className="flex items-center justify-between text-xs mt-2 pt-2 border-t border-dashed">
-                  <span>البيانات: {project.datasets_count || 0}</span>
-                  <span>التقارير: {project.reports_count || 0}</span>
-                </div>
-              </CardContent>
-              <CardFooter className="bg-muted/50 p-3 flex justify-end border-t">
-                <Button variant="ghost" size="sm" className="gap-1 text-primary">
-                  عرض التفاصيل
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
+            <div key={project.id} style={{ border: '1px solid #eaeaea', borderRadius: '12px', padding: '1.5rem', background: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>{project.name}</h3>
+              <p style={{ color: '#666', fontSize: '0.875rem', marginBottom: '1rem' }}>{project.description || 'لا يوجد وصف للمشروع'}</p>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#888', fontSize: '0.75rem', marginBottom: '1rem' }}>
+                <Calendar size={14} />
+                <span>{new Date(project.created_at).toLocaleDateString('ar-EG')}</span>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #f5f5f5', paddingTop: '1rem', fontSize: '0.875rem' }}>
+                <span>البيانات: {project.datasets_count || 0}</span>
+                <span>التقارير: {project.reports_count || 0}</span>
+              </div>
+
+              <button style={{ width: '100%', marginTop: '1rem', padding: '0.5rem', background: '#f5f5f5', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#333' }}>
+                عرض التفاصيل
+                <ArrowRight size={14} />
+              </button>
+            </div>
           ))}
         </div>
       )}
 
-      {/* النافذة المنبثقة المسؤولة عن رفع الملفات من الهاتف والتحليل الذكي */}
-      <CreateProjectModal 
-        isOpen={isCreateModalOpen} 
-        onClose={() => setIsCreateModalOpen(false)} 
-      />
+      {/* النافذة المنبثقة لرفع الملفات عند الضغط على مشروع جديد */}
+      {isCreateModalOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', padding: '2rem', borderRadius: '12px', maxWidth: '500px', width: '90%', position: 'relative' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>إنشاء مشروع جديد عبر رفع ملف PDF</h2>
+            <div style={{ border: '2px dashed #0070f3', padding: '2rem', textAlign: 'center', borderRadius: '8px', cursor: 'pointer', background: '#f0f7ff' }}>
+              <input type="file" accept=".pdf" id="modal-pdf" style={{ display: 'none' }} />
+              <label htmlFor="modal-pdf" style={{ cursor: 'pointer', color: '#0070f3' }}>اضغط هنا لاختيار ملف PDF الخاص بمشروعك</label>
+            </div>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
+              <button onClick={() => setIsCreateModalOpen(false)} style={{ padding: '0.5rem 1rem', background: '#eee', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>إلغاء</button>
+              <button style={{ padding: '0.5rem 1rem', background: '#0070f3', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>ابدأ المعالجة</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
-  )
+  );
 }
