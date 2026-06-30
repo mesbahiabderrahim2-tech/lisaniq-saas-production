@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { Plus, Folder, Calendar, ArrowRight } from 'lucide-react';
 
-// واجهة تعريفية للمشاريع المسترجعة من قاعدة البيانات
 interface Project {
   id: string;
   name: string;
@@ -15,20 +14,18 @@ interface Project {
 
 export default function ProjectsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [projects] = useState<Project[]>([]);
 
   return (
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', fontFamily: 'sans-serif', direction: 'rtl' }}>
       
       {/* الهيدر العلوي لصفحة المشاريع */}
-      <div style={{ display: 'flex', justifyContent: 'between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '1.25rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '1.25rem', marginBottom: '2rem' }}>
         <div>
           <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111' }}>المشاريع</h1>
           <p style={{ color: '#666', marginTop: '0.25rem' }}>إدارة وتحليل حملاتك التسويقية ومستنداتك الذكية في مكان واحد</p>
         </div>
         
-        {/* زر إنشاء مشروع - تم تحويله إلى زر عادي لتجنب الخطأ */}
         <button 
           onClick={() => setIsCreateModalOpen(true)} 
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#0070f3', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}
@@ -45,7 +42,7 @@ export default function ProjectsPage() {
             <Folder size={32} color="#0070f3" />
           </div>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>لا توجد مشاريع حالياً</h2>
-          <p style={{ color: '#666', fontSize: '0.875rem', marginBottom: '1.5rem' }}>قم بتحليل فوراً لملفات LisaniQ أو البيانات التسويقية لتقوم محركات PDF فوراً بإنشاء مشروعك الأول ورفع ملفات الـ</p>
+          <p style={{ color: '#666', fontSize: '0.875rem', marginBottom: '1.5rem' }}>قم برفع ملفات الـ PDF الخاصة بمشروعك الأول لبدء المعالجة والتحليل فوراً.</p>
           
           <button 
             onClick={() => setIsCreateModalOpen(true)} 
@@ -58,7 +55,7 @@ export default function ProjectsPage() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
           {projects.map((project) => (
-            <div key={project.id} style={{ border: '1px solid #eaeaea', borderRadius: '12px', padding: '1.5rem', background: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+            <div key={project.id} style={{ border: '1px solid #eaeaea', borderRadius: '12px', padding: '1.5rem', background: '#fff' }}>
               <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>{project.name}</h3>
               <p style={{ color: '#666', fontSize: '0.875rem', marginBottom: '1rem' }}>{project.description || 'لا يوجد وصف للمشروع'}</p>
               
@@ -81,14 +78,14 @@ export default function ProjectsPage() {
         </div>
       )}
 
-      {/* النافذة المنبثقة لرفع الملفات عند الضغط على مشروع جديد */}
+      {/* النافذة المنبثقة البديلة والنظيفة لرفع الملفات */}
       {isCreateModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', padding: '2rem', borderRadius: '12px', maxWidth: '500px', width: '90%', position: 'relative' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>إنشاء مشروع جديد عبر رفع ملف PDF</h2>
-            <div style={{ border: '2px dashed #0070f3', padding: '2rem', textAlign: 'center', borderRadius: '8px', cursor: 'pointer', background: '#f0f7ff' }}>
+          <div style={{ background: '#fff', padding: '2rem', borderRadius: '12px', maxWidth: '500px', width: '90%' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>إنشاء مشروع جديد</h2>
+            <div style={{ border: '2px dashed #0070f3', padding: '2rem', textAlign: 'center', borderRadius: '8px', background: '#f0f7ff' }}>
               <input type="file" accept=".pdf" id="modal-pdf" style={{ display: 'none' }} />
-              <label htmlFor="modal-pdf" style={{ cursor: 'pointer', color: '#0070f3' }}>اضغط هنا لاختيار ملف PDF الخاص بمشروعك</label>
+              <label htmlFor="modal-pdf" style={{ cursor: 'pointer', color: '#0070f3' }}>اضغط هنا لاختيار ملف PDF</label>
             </div>
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
               <button onClick={() => setIsCreateModalOpen(false)} style={{ padding: '0.5rem 1rem', background: '#eee', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>إلغاء</button>
