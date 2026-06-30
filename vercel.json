@@ -1,6 +1,0 @@
-{
-  "framework": "nextjs",
-  "buildCommand": "cd lisaniq-saas && npm run build",
-  "outputDirectory": "lisaniq-saas/.next"
-}
-
