@@ -1,9 +1,41 @@
 // components/PricingPlans.tsx
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function PricingPlans() {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleUpgrade = async () => {
+    setIsLoading(true);
+    try {
+      // استدعاء مسار الـ API لتهيئة جلسة الدفع سحابياً
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'حدث خطأ أثناء الاتصال ببوابة الدفع.');
+      }
+
+      // إذا نجحت الجلسة، نقوم بنقل المستخدم فوراً لصفحة Stripe الآمنة
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('لم يتم استلام رابط الدفع بشكل صحيح.');
+      }
+    } catch (error: any) {
+      alert(`⚠️ إشعار: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const plans = [
     {
       name: 'الباقة المجانية (Free)',
@@ -18,7 +50,8 @@ export default function PricingPlans() {
       ],
       buttonText: 'الخطة الحالية',
       active: true,
-      color: 'slate'
+      color: 'slate',
+      onClick: () => {}
     },
     {
       name: 'الباقة المتقدمة (Pro)',
@@ -32,9 +65,10 @@ export default function PricingPlans() {
         'تصدير التقارير بصيغة PDF و Excel بضغطة زر',
         'دعم فني متواصل 24/7'
       ],
-      buttonText: '🚀 ترقية الحساب الآن',
+      buttonText: isLoading ? 'جاري تحويلك لبوابة الدفع... 💳' : '🚀 ترقية الحساب الآن',
       active: false,
-      color: 'indigo'
+      color: 'indigo',
+      onClick: handleUpgrade
     }
   ];
 
@@ -84,12 +118,12 @@ export default function PricingPlans() {
             </div>
 
             <button 
-              onClick={() => plan.color === 'indigo' && alert('💳 جاري تحويلك بأمان إلى بوابة دفع Stripe/Paddle الدولية...')}
-              disabled={plan.active}
+              onClick={plan.onClick}
+              disabled={plan.active || isLoading}
               className={`w-full mt-8 py-3 px-4 rounded-xl font-bold text-xs transition duration-200 text-center ${
                 plan.active 
                   ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
-                  : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/10'
+                  : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/10 disabled:opacity-50'
               }`}
             >
               {plan.buttonText}
@@ -100,4 +134,3 @@ export default function PricingPlans() {
     </div>
   );
 }
-
