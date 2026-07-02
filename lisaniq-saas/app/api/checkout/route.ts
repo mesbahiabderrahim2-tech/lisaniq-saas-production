@@ -6,10 +6,8 @@ import { cookies } from 'next/headers';
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
-  // 1. استدعاء الكوكيز بشكل صحيح متوافق مع Next.js 15
   const cookieStore = await cookies();
   
-  // 2. إنشاء اتصال السيرفر المستقر
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -18,13 +16,13 @@ export async function POST(request: NextRequest) {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: any[]) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
+            cookiesToSet.forEach(({ name, value, options }: any) =>
               cookieStore.set(name, value, options)
             );
           } catch {
-            // تجاهل الأخطاء إذا تم الاستدعاء من مكونات سيرفر محمية
+            // تجاهل الأخطاء أثناء التشغيل داخل السيرفر
           }
         },
       },
@@ -32,7 +30,6 @@ export async function POST(request: NextRequest) {
   );
 
   try {
-    // 3. التحقق من المستخدم بأمان
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
@@ -52,7 +49,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. توجيه المستخدم إلى رابط الدفع المباشر
     const checkoutUrl = `https://checkout.lisaniq.com/pay/pro?user_id=${user.id}&plan=${plan}`;
 
     return NextResponse.json({ url: checkoutUrl }, { status: 200 });
