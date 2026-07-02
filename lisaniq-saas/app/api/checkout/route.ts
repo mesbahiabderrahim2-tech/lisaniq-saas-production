@@ -1,60 +1,67 @@
 // app/api/checkout/route.ts
-import { NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import Stripe from 'stripe';
+import { NextRequest, NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
+import cookies from 'next/headers';
 
-// تهيئة مكتبة Stripe باستخدام المفتاح السري المخرّن في البيئة
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16' as any,
-});
+export const runtime = 'nodejs';
 
-export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+export async function POST(request: NextRequest) {
+  // 1. إنشاء اتصال متوافق مع السيرفر لقراءة الكوكيز وبيانات المستخدم الحالي
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // يمكن تجاهل الخطأ إذا تم استدعاؤه داخل مكون سيرفر
+          }
+        },
+      },
+    }
+  );
+
+  // 2. التحقق من هوية المستخدم النشط
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json(
+      { error: '🔒 غير مصرح بالدخول، يرجى تسجيل الدخول أولاً.' },
+      { status: 401 }
+    );
+  }
 
   try {
-    // 1. التحقق من هوية المستخدم الجاري دفعه
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'غير مصرح لك. يرجى تسجيل الدخول أولاً.' }, { status: 401 });
+    const body = await request.json();
+    const { plan } = body;
+
+    if (!plan) {
+      return NextResponse.json(
+        { error: '⚠️ نوع خطة الأسعار غير محدد.' },
+        { status: 400 }
+      );
     }
 
-    const origin = new URL(request.url).origin;
+    // 3. رابط بوابة الدفع الافتراضي (Stripe / Paddle) للتحديث الجديد
+    // يمكنك تعديل الرابط أدناه برابط صفحة الدفع الحقيقية الخاصة بك في Stripe لاحقاً
+    const checkoutUrl = `https://checkout.lisaniq.com/pay/pro?user_id=${user.id}&plan=${plan}`;
 
-    // 2. إنشاء جلسة الدفع سحابياً في Stripe
-    const session = await stripe.checkout.sessions.create({
-      customer_email: user.email,
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          // سعر باقة الـ Pro التخيلية (يمكنك ربطها بمعرف السعر الفعلي من لوحة التحكم في Stripe لاحقاً)
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'باقة المحترفين LisanIQ Pro Plan',
-              description: 'رفع وتحليل ملفات CSV بلا حدود مع دعم تقارير ضخمة وأرشفة سحابية متقدمة.',
-            },
-            unit_amount: 4900, // الـ 49 دولار تحسب بالسنت (4900 سنت)
-            recurring: { interval: 'month' },
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'subscription',
-      // حفظ معرف المستخدم (user_id) داخل الميتا-داتا لكي نقرأه في الـ Webhook فور نجاح الدفع
-      metadata: {
-        userId: user.id,
-      },
-      success_url: `${origin}/dashboard?session_id={CHECKOUT_SESSION_ID}&payment=success`,
-      cancel_url: `${origin}/dashboard?payment=cancelled`,
-    });
+    // إرجاع رابط الدفع بنجاح إلى الواجهة الأمامية للتوجه التلقائي
+    return NextResponse.json({ url: checkoutUrl }, { status: 200 });
 
-    // إرجاع رابط الدفع الآمن للواجهة الأمامية
-    return NextResponse.json({ url: session.url });
-
-  } catch (error: any) {
-    console.error('Stripe Checkout Error:', error);
-    return NextResponse.json({ error: 'حدث خطأ أثناء تهيئة جلسة الدفع السحابية.' }, { status: 500 });
+  } catch (globalError: any) {
+    console.error('❌ حدث خطأ في السيرفر أثناء تحضير الفاتورة:', globalError.message);
+    return NextResponse.json(
+      { error: 'حدث خطأ داخلي في السيرفر أثناء تهيئة عملية الدفع.' },
+      { status: 500 }
+    );
   }
 }
-
