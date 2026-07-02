@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { DecisionEngine, CampaignDecision } from '@/lib/decision-engine';
+import ClientHistory from '@/components/ClientHistory';
 
 export default function DashboardPage() {
   const supabase = createClientComponentClient();
@@ -16,10 +17,9 @@ export default function DashboardPage() {
   const [decisions, setDecisions] = useState<CampaignDecision[]>([]);
   const [stats, setStats] = useState({ totalSpend: 0, totalSavings: 0, criticalCount: 0 });
 
-  // 1. جلب قائمة العملاء عند تحميل الصفحة
+  // 1. جلب قائمة العملاء عند تحميل لوحة التحكم
   useEffect(() => {
     async function loadInitialData() {
-      // جلب المنظمة التابعة للمستخدم الحالي
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
@@ -43,9 +43,9 @@ export default function DashboardPage() {
       }
     }
     loadInitialData();
-  }, []);
+  }, [supabase]);
 
-  // 2. دالة إنشاء عميل جديد فوري من لوحة التحكم
+  // 2. دالة إنشاء حساب عميل تجاري جديد فورياً
   const handleCreateClient = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newClientName.trim()) return;
@@ -55,7 +55,6 @@ export default function DashboardPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // التأكد من وجود منظمة أو جلبها
       let { data: org } = await supabase
         .from('organizations')
         .select('id')
@@ -92,14 +91,13 @@ export default function DashboardPage() {
     }
   };
 
-  // 3. دالة معالجة ورفع الملف البرمجي وربطه بالسيرفر والعميل
+  // 3. دالة معالجة ورفع تقارير الـ CSV سحابياً
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     setIsUploading(true);
     
-    // بناء بيانات الـ FormData لإرسالها حية للسيرفر الخلفي المطور
     const formData = new FormData();
     formData.append('file', file);
     if (selectedClientId) {
@@ -118,7 +116,6 @@ export default function DashboardPage() {
         throw new Error(result.error || 'فشلت معالجة الملف سحابياً.');
       }
 
-      // محاكاة قراءة وعرض القرارات حياً في الواجهة بناءً على مخرجات السيرفر
       if (result.rows) {
         let allDecisions: CampaignDecision[] = [];
         let spendSum = 0;
@@ -154,7 +151,10 @@ export default function DashboardPage() {
           totalSavings: savingsSum,
           criticalCount: criticals
         });
-        alert('🚀 تم رفع الملف، وحساب المؤشرات، وأرشفة القرارات في تاريخ العميل سحابياً!');
+        alert('🚀 تم تحليل التقرير وأرشفة التوصيات في سجل العميل بنجاح!');
+        
+        // إعادة تحميل الصفحة أو تحديث حالة المكونات ليعكس الأرشيف فوراً البيانات الجديدة
+        window.location.reload();
       }
     } catch (error: any) {
       alert(`⚠️ خطأ في المعالجة: ${error.message}`);
@@ -165,20 +165,19 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 text-right" dir="rtl">
-      {/* الترويسة العلوية */}
+      {/* الترويسة العليا */}
       <div className="mb-8 flex flex-col justify-between items-start md:flex-row md:items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
         <div>
           <span className="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full border border-indigo-200">
             نظام إدارة سجلات العملاء المستدام 🏢
           </span>
-          <h1 className="text-2xl font-black text-slate-900 mt-2">LisanIQ – Client Portfolio Management</h1>
-          <p className="text-sm text-slate-500 mt-1">إدارة عملائك، رفع تقارير الـ CSV وأرشفة قرارات الحسابات الإعلانية تلقائياً.</p>
+          <h1 className="text-2xl font-black text-slate-900 mt-2">LisanIQ – Dashboard</h1>
+          <p className="text-sm text-slate-500 mt-1">إدارة وتحليل ملفات الـ CSV وحفظ سجلات الوكالات والشركات تاريخياً.</p>
         </div>
       </div>
 
-      {/* قسم إدارة واختيار العملاء */}
+      {/* شريط الإدارة والتحكم في المحفظة */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {/* صندوق اختيار العميل ورفع الملف */}
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm md:col-span-2">
           <h3 className="font-bold text-slate-800 mb-3">📍 اختر العميل المستهدف للتحليل:</h3>
           <div className="flex flex-col sm:flex-row gap-4 items-center">
@@ -188,26 +187,25 @@ export default function DashboardPage() {
               className="w-full sm:w-1/2 p-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-medium focus:outline-indigo-600 text-sm"
             >
               {clients.length === 0 ? (
-                <option value="">جاري تهيئة العميل الافتراضي...</option>
+                <option value="">جاري جلب قائمة العملاء...</option>
               ) : (
                 clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)
               )}
             </select>
 
             <label className={`w-full sm:w-1/2 cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition shadow-md inline-block text-center text-sm ${isUploading ? 'opacity-60 pointer-events-none' : ''}`}>
-              {isUploading ? 'جاري معالجة وأرشفة البيانات...' : '📁 ارفع تقرير الـ CSV للعميل'}
+              {isUploading ? 'جاري معالجة الـ CSV...' : '📁 ارفع تقرير الـ CSV للعميل'}
               <input type="file" accept=".csv" className="hidden" onChange={handleFileUpload} disabled={isUploading} />
             </label>
           </div>
         </div>
 
-        {/* صندوق إضافة عميل جديد سريع */}
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
           <h3 className="font-bold text-slate-800 mb-2">➕ إضافة حساب عميل جديد:</h3>
           <form onSubmit={handleCreateClient} className="space-y-3">
             <input 
               type="text" 
-              placeholder="اسم الشركة أو العميل..." 
+              placeholder="اسم حساب الشركة أو العميل..." 
               value={newClientName}
               onChange={(e) => setNewClientName(e.target.value)}
               className="w-full p-2.5 rounded-xl border border-slate-200 text-sm focus:outline-indigo-600"
@@ -224,30 +222,30 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* لوحة أرقام الوفورات المالي */}
+      {/* مؤشرات الأداء والوفورات التراكمية الحالية */}
       {stats.totalSpend > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-            <p className="text-xs font-bold text-slate-400">الإنفاق المالي للحساب</p>
+            <p className="text-xs font-bold text-slate-400">الإنفاق المالي الحالي</p>
             <p className="text-2xl font-black text-slate-900 mt-1">${stats.totalSpend.toLocaleString()}</p>
           </div>
           <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-            <p className="text-xs font-bold text-rose-500">حملات تنزف ميزانية العميل</p>
-            <p className="text-2xl font-black text-rose-600 mt-1">⚠️ {stats.criticalCount} توصيات حاسمة</p>
+            <p className="text-xs font-bold text-rose-500">حملات تنزف الميزانية</p>
+            <p className="text-2xl font-black text-rose-600 mt-1">⚠️ {stats.criticalCount} توصيات حرجة</p>
           </div>
           <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm bg-gradient-to-br from-emerald-50 to-white">
-            <p className="text-xs font-bold text-emerald-600">النزيف المالي المسترد للعميل</p>
+            <p className="text-xs font-bold text-emerald-600">الوفورات المستردة المحتملة</p>
             <p className="text-2xl font-black text-emerald-700 mt-1">${stats.totalSavings.toLocaleString()}</p>
           </div>
         </div>
       )}
 
-      {/* مخرجات محرك القرارات الحية */}
+      {/* لوحة نتائج تحليل التقرير النشط */}
       <div className="space-y-4">
         <h2 className="text-md font-bold text-slate-700">📋 مخرجات معالجة التقرير الحالي:</h2>
         {decisions.length === 0 ? (
           <div className="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center text-slate-400 text-sm">
-            قم باختيار العميل أو إنشاء حساب له ثم ارفع ملف الـ CSV الخاص به لمعالجة بياناته وأرشفتها.
+            اختر العميل المستهدف ثم ارفع ملف الـ CSV لمعالجة بياناته الإعلانية حياً وعرضها هنا.
           </div>
         ) : (
           decisions.map((decision) => (
@@ -264,6 +262,9 @@ export default function DashboardPage() {
           ))
         )}
       </div>
+
+      {/* 📜 استدعاء وتضمين السجل التاريخي المتطور للعميل النشط سحابياً */}
+      <ClientHistory clientId={selectedClientId} />
     </div>
   );
 }
