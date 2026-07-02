@@ -1,5 +1,4 @@
 // app/api/upload/route.ts
-
 import { NextRequest } from 'next/server';
 import { randomUUID } from 'crypto';
 import { requireAuth, ok, badRequest, forbidden, serverError, unprocessable } from '@/lib/api-utils';
@@ -15,7 +14,7 @@ export const runtime = 'nodejs';
 export const maxDuration = 60; // أقصى مدة لتنفيذ السيرفر لمنع انقطاع الاتصال في الملفات الكبيرة
 
 export async function POST(request: NextRequest) {
-  // 1️⃣ التحقق من الهوية والأمان (Authentication Check)
+  // 1️⃣ التحقق من الهوية والأمان
   const auth = await requireAuth();
   if (!auth.success) return auth.response;
 
@@ -25,20 +24,18 @@ export async function POST(request: NextRequest) {
     // 2️⃣ قراءة وتحليل بيانات الفورم (Multipart Form Data)
     const formData = await request.formData();
     const file = formData.get('file');
-    const clientId = formData.get('client_id'); // استقبال معرف العميل المستهدف من الواجهة
-    const customName = formData.get('name');
+    const clientId = formData.get('client_id') as string;
+    const customName = formData.get('name') as string;
 
     if (!file || !(file instanceof File)) {
-      return badRequest('لم يتم توفير ملف CSV صالح. يرجى إرفاق ملفك.');
+      return badRequest('صيغة غير صالحة. يرجى إرفاق ملف CSV لم يتم توفير ملف.');
     }
 
-    // 3️⃣ تهيئة أو جلب المنظمة والعميل لضمان عدم تعطل الرفع (Auto-Onboarding Architecture)
-    // جلب أو إنشاء المنظمة تلقائياً للمستخدم الحالي
+    // 3️⃣ (Auto-Onboarding Architecture) تهيئة أو جلب المنظمة والعميل لضمان عدم تعطل الرفع
     const organization = await ClientService.getOrCreateOrganization(supabase, user.id, user.email || '');
     
     let finalClientId = clientId as string;
-    
-    // إذا لم ترسل الواجهة عميلاً محدداً، نقوم بإنشاء عميل افتراضي فوري للحساب لحفظ البيانات بأمان
+
     if (!finalClientId || typeof finalClientId !== 'string') {
       const { data: defaultClient } = await supabase
         .from('clients')
@@ -59,49 +56,50 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 4️⃣ التحقق من قيود الباقة الحالية للمستخدم (Plan & Rate Limits Check)
-    const { data: countResult } = await supabase.rpc('count_user_datasets', { p_user_id: user.id });
-    const currentCount = (countResult as number) ?? 0;
-    const datasetLimitCheck = checkDatasetLimit(user.plan, currentCount);
-    if (!datasetLimitCheck.allowed) {
-      return forbidden(datasetLimitCheck.reason ?? 'لقد وصلت للحد الأقصى المسموح به لرفع الملفات في باقتك الحالية.');
+    // ========================================================
+    // 🛡️ 4️⃣ نظام الحصص الفعلي والقيود لـ SaaS (Plan & Rate Limits Check)
+    // ========================================================
+    // سحب عدد الملفات التي رفعها المستخدم فعلياً من قاعدة البيانات
+    const { count: currentCount, error: countError } = await supabase
+      .from('datasets')
+      .select('*', { count: 'exact', head: true })
+      .eq('owner_id', user.id);
+
+    if (countError) throw countError;
+
+    // فحص قيد الخطة الأساسي (الحد الأقصى الافتراضي للباقة المجانية هو 5 ملفات)
+    const FREE_PLAN_LIMIT = 5;
+    if (currentCount !== null && currentCount >= FREE_PLAN_LIMIT) {
+      return forbidden(`لقد وصلت للحد الأقصى المسموح به لرفع الملفات في باقتك الحالية (${FREE_PLAN_LIMIT} ملفات). يرجى الترقية للحساب المتقدم.`);
     }
 
-    // 5️⃣ فحص حجم وحجم امتداد الملف (Validation Check)
-    const maxBytes = (user.plan === 'free' ? 5 : 25) * 1024 * 1024; // 5MB للمجاني، 25MB للمدفوع
-    const fileSizeCheck = checkFileSizeLimit(user.plan, file.size);
-    if (!fileSizeCheck.allowed) {
-      return unprocessable(fileSizeCheck.reason ?? 'حجم الملف يتجاوز الحد المسموح به لباقة حسابك.');
+    // 5️⃣ فحص حجم وحجم امتداد الملف
+    const maxBytes = (user.plan === 'pro' ? 25 : 5) * 1024 * 1024; // 5MB للمجاني، 25MB للمحترفين
+    if (file.size > maxBytes) {
+      return unprocessable('حجم الملف يتجاوز الحد المسموح به لباقة حسابك.');
     }
 
     const validation = validateFileMetadata(file.name, file.size, maxBytes);
     if (!validation.valid || !validation.extension) {
-      return unprocessable(validation.error ?? 'صيغة الملف غير مدعومة، يرجى رفع ملف بصيغة CSV فقط.');
+      return unprocessable('فقط ملفات CSV مدعومة. يرجى رفع ملف بصيغة سليمة.');
     }
 
-    // 6️⃣ تفكيك وقراءة محتويات ملف الـ CSV (Parsing Engine)
+    // 6️⃣ تفكيك وقراءة محتويات ملف الـ CSV
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    
     const parseResult = await parseUploadedFile(buffer, file.name, validation.extension);
-    
-    try {
-      validateParsedRows(parseResult.data);
-    } catch (err: any) {
-      return unprocessable(err.message ?? 'الملف لا يحتوي على أرقام أو أعمدة حملات تسويقية صالحة.');
+
+    // 7️⃣ فحص حدود الأسطر البرمجية المسموحة داخل الملف
+    const maxRows = user.plan === 'pro' ? 50000 : 1000;
+    if (parseResult.rowCount > maxRows) {
+      return unprocessable('عدد الأسطر داخل الملف يتجاوز الحد الأقصى المسموح به لباقة حسابك الحالي.');
     }
 
-    // 7️⃣ فحص حدود الأسطر المسموحة (Row Count Check)
-    const rowLimitCheck = checkRowLimit(user.plan, parseResult.rowCount);
-    if (!rowLimitCheck.allowed) {
-      return unprocessable(rowLimitCheck.reason ?? 'عدد الأسطر داخل الملف يتجاوز الحد الأقصى المتاح لباقة حسابك.');
-    }
-
-    // 8️⃣ حجز معرف فرعي ورفع الملف الأصلي سحابياً إلى حاوية التخزين (Supabase Storage)
+    // 8️⃣ حجز معرف سحابي ورفع الملف الأصلي إلى حاوية التخزين (Supabase Storage)
     const datasetId = randomUUID();
     const datasetName = typeof customName === 'string' && customName.trim()
       ? customName.trim()
-      : file.name.replace(/\.[^/.]+$/, ''); // حذف الامتداد من الاسم
+      : file.name.replace(/\.[^/.]+$/, '');
 
     const storagePath = buildStoragePath(user.id, datasetId, file.name);
     const mimeType = getMimeType(validation.extension);
@@ -111,9 +109,10 @@ export async function POST(request: NextRequest) {
       return serverError('فشلت عملية رفع وتخزين الملف الأصلي سحابياً، يرجى المحاولة مرة أخرى.');
     }
 
-    // 9️⃣ إدراج سجل البيانات الأساسي برابط العميل الجديد (Database Injection)
+    // 9️⃣ إدراج سجل البيانات الأساسي برابط التخزين في جدول قاعدة البيانات
     const { error: insertError } = await supabase
       .from('datasets')
+      .select('*')
       .insert({
         id: datasetId,
         owner_id: user.id,
@@ -131,10 +130,10 @@ export async function POST(request: NextRequest) {
       return serverError('فشل تهيئة وحفظ سجل البيانات في قاعدة البيانات.');
     }
 
-    // 🔟 تشغيل محرك الحسابات الإحصائية الشامل (KPIs Calculations Engine)
+    // 🔟 تشغيل محرك الحسابات الإحصائية الإجمالية الـ KPIs
     const kpis = calcKPIs(parseResult.data);
 
-    // 🧠 11: تشغيل محرك القرارات المطور وأرشفتها تاريخياً للعميل الحالي
+    // 1️⃣1️⃣ تشغيل محرك القرارات الذكي وأرشفتها في جداول الأرشيف التاريخي للعميل
     const batchDecisions: any[] = [];
     parseResult.data.forEach((row: any) => {
       const singleCampaignDecisions = DecisionEngine.evaluateCampaign({
@@ -154,25 +153,22 @@ export async function POST(request: NextRequest) {
       batchDecisions.push(...singleCampaignDecisions);
     });
 
-    // استدعاء خدمة الأرشفة لحفظ القرارات فوراً في جداول التاريخ
+    // استدعاء خدمة الأرشفة لحفظ كافة التوصيات فوراً في جداول الأرشيف تاريخياً
     await ClientService.archiveDecisions(supabase, finalClientId, datasetId, batchDecisions);
 
-    // 12: تحديث حالة السجل إلى "جاهز" وكاش الأسطر (Cache Rows Update)
-    const firstRow = parseResult.data[0] ?? {};
-    const columnMap = {
-      campaign: 'campaign' in firstRow ? 'campaign' : null,
-      impressions: 'impressions' in firstRow ? 'impressions' : null,
-      clicks: 'clicks' in firstRow ? 'clicks' : null,
-      spend: 'spend' in firstRow ? 'spend' : null,
-      revenue: 'revenue' in firstRow ? 'revenue' : null,
-      conversions: 'conversions' in firstRow ? 'conversions' : null,
-    };
-
+    // 1️⃣2️⃣ تحديث حالة السجل إلى "جاهز" وحفظ كاش البيانات النهائي
     const { error: updateError } = await supabase
       .from('datasets')
       .update({
         status: 'ready',
-        column_map: columnMap,
+        column_map: {
+          campaign: 'campaign' in parseResult.data[0] ? 'campaign' : null,
+          impressions: 'impressions' in parseResult.data[0] ? 'impressions' : null,
+          clicks: 'clicks' in parseResult.data[0] ? 'clicks' : null,
+          spend: 'spend' in parseResult.data[0] ? 'spend' : null,
+          revenue: 'revenue' in parseResult.data[0] ? 'revenue' : null,
+          conversions: 'conversions' in parseResult.data[0] ? 'conversions' : null,
+        },
         cached_rows: parseResult.data.slice(0, 1000), // كاش لأول 1000 سطر لتسريع العرض مستقبلاً
         row_count: parseResult.rowCount
       })
@@ -182,7 +178,7 @@ export async function POST(request: NextRequest) {
       return serverError('فشلت عملية معالجة وحفظ كاش البيانات النهائية.');
     }
 
-    // 13: تسجيل النشاط في سجل الأنشطة الإدارية (Log Activity)
+    // 1️⃣3️⃣ تسجيل النشاط في سجل الأنشطة الإدارية (Log Activity)
     await logActivity({
       userId: user.id,
       action: 'dataset.uploaded',
@@ -197,14 +193,14 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // 14: إرجاع المخرجات النهائية بنجاح كامل (201 Created)
+    // 1️⃣4️⃣ إرجاع المخرجات والنتائج كاملة للواجهة الأمامية بنجاح
     return ok({
       dataset_id: datasetId,
       client_id: finalClientId,
       kpis,
       decisionsCount: batchDecisions.length,
       rows: parseResult.data
-    }, 201);
+    });
 
   } catch (globalError: any) {
     console.error('❌ عطل حرج غير متوقع في سيرفر الرفع:', globalError);
