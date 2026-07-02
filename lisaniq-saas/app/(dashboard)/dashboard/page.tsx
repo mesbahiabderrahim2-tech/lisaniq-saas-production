@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { DecisionEngine, CampaignDecision } from '@/lib/decision-engine';
 import ClientHistory from '@/components/ClientHistory';
+import PricingPlans from '@/components/PricingPlans';
 
 export default function DashboardPage() {
   const supabase = createClientComponentClient();
@@ -112,6 +113,7 @@ export default function DashboardPage() {
 
       const result = await response.json();
 
+      // التحقق مما إذا كان جدار حماية الحصص (SaaS Limit) قد منع الرفع
       if (!response.ok) {
         throw new Error(result.error || 'فشلت معالجة الملف سحابياً.');
       }
@@ -153,11 +155,11 @@ export default function DashboardPage() {
         });
         alert('🚀 تم تحليل التقرير وأرشفة التوصيات في سجل العميل بنجاح!');
         
-        // إعادة تحميل الصفحة أو تحديث حالة المكونات ليعكس الأرشيف فوراً البيانات الجديدة
+        // إعادة تنشيط الواجهة لتحديث الأرشيف بالأسفل فوراً
         window.location.reload();
       }
     } catch (error: any) {
-      alert(`⚠️ خطأ في المعالجة: ${error.message}`);
+      alert(`⚠️ إشعار النظام: ${error.message}`);
     } finally {
       setIsUploading(false);
     }
@@ -248,8 +250,8 @@ export default function DashboardPage() {
             اختر العميل المستهدف ثم ارفع ملف الـ CSV لمعالجة بياناته الإعلانية حياً وعرضها هنا.
           </div>
         ) : (
-          decisions.map((decision) => (
-            <div key={decision.id} className="p-5 bg-white rounded-xl shadow-sm border border-slate-100 border-r-4 border-r-indigo-600">
+          decisions.map((decision, idx) => (
+            <div key={idx} className="p-5 bg-white rounded-xl shadow-sm border border-slate-100 border-r-4 border-r-indigo-600">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-xs font-black bg-slate-100 text-slate-700 px-2 py-1 rounded">
                   {decision.platform.toUpperCase()} | {decision.campaignName}
@@ -263,8 +265,11 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* 📜 استدعاء وتضمين السجل التاريخي المتطور للعميل النشط سحابياً */}
+      {/* 📜 أولاً: استدعاء الأرشيف التاريخي للعميل المختار */}
       <ClientHistory clientId={selectedClientId} />
+
+      {/* 💰 ثانياً: استدعاء لوحة خطط الأسعار والاشتراكات لبناء الـ SaaS */}
+      <PricingPlans />
     </div>
   );
 }
