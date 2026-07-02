@@ -2,11 +2,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 import ClientHistory from '@/components/ClientHistory';
 import PricingPlans from '@/components/PricingPlans';
 
-// 1. واجهة برمجية لتعريف هيكل البيانات لتجنب أخطاء الـ TypeScript
 interface LocalCampaignDecision {
   campaignName: string;
   platform: string;
@@ -17,7 +16,12 @@ interface LocalCampaignDecision {
 }
 
 export default function DashboardPage() {
-  const supabase = createClientComponentClient();
+  // الاتصال بـ Supabase باستخدام الحزمة الصحيحة والمثبتة في مشروعك @supabase/ssr
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
   const [isUploading, setIsUploading] = useState(false);
   const [isSampleLoading, setIsSampleLoading] = useState(false);
   const [clients, setClients] = useState<any[]>([]);
@@ -25,12 +29,11 @@ export default function DashboardPage() {
   const [newClientName, setNewClientName] = useState('');
   const [isCreatingClient, setIsCreatingClient] = useState(false);
   
-  // دمج مخرجات المحرك محلياً لحماية الصفحة من الانهيار
   const [decisions, setDecisions] = useState<LocalCampaignDecision[]>([]);
   const [stats, setStats] = useState({ totalSpend: 0, totalSavings: 0, criticalCount: 0 });
   const [isShowingSample, setIsShowingSample] = useState(false);
 
-  // جلب قائمة العملاء عند تحميل لوحة التحكم
+  // جلب البيانات الأولية
   useEffect(() => {
     async function loadInitialData() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -58,12 +61,10 @@ export default function DashboardPage() {
     loadInitialData();
   }, [supabase]);
 
-  // 2. دالة تشغيل العينة الجاهزة المدمجة داخلياً بأمان مطلق
+  // تشغيل العينة التجريبية
   const handleTriggerSample = () => {
     setIsSampleLoading(true);
-    
     setTimeout(() => {
-      // حقن البيانات والقرارات مباشرة لمنع أي تعليق أو خطأ في الصفحة
       const sampleDecisions: LocalCampaignDecision[] = [
         {
           campaignName: '🔍 [Search] - Brand Keywords - MENA',
@@ -181,7 +182,6 @@ export default function DashboardPage() {
       }
 
       if (result.rows) {
-        // إذا قام المستخدم برفع ملف حقيقي، نستدعي المحرك الأصلي المرفق بالسيرفر
         alert('🚀 تم تحليل التقرير وأرشفة التوصيات في سجل العميل بنجاح!');
       }
     } catch (error: any) {
@@ -303,7 +303,6 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* حماية استدعاء السجل التاريخي لتجنب تعارضه مع وضع العينة */}
       {!isShowingSample && selectedClientId && <ClientHistory clientId={selectedClientId} />}
       <PricingPlans />
     </div>
