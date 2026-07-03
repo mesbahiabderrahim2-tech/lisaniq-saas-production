@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
-import { PageContainer, PageHeader } from '@/components/dashboard/PagePrimitives';
+import { PageHeader } from '@/components/dashboard/PagePrimitives';
 import { StripeButton } from '@/components/dashboard/StripeButton';
 import PricingPlans from '@/components/PricingPlans';
 
@@ -67,11 +67,9 @@ export default function BillingPage() {
 
   if (loading) {
     return (
-      <PageContainer>
-        <div className="p-10 text-center font-bold text-slate-500" dir="rtl">
-          ⏳ جاري تحميل السجلات المالية الآمنة وفحص بوابة الدفع...
-        </div>
-      </PageContainer>
+      <div className="w-full min-h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-500" dir="rtl">
+        ⏳ جاري تحميل السجلات المالية الآمنة وفحص بوابة الدفع...
+      </div>
     );
   }
 
@@ -81,15 +79,15 @@ export default function BillingPage() {
   const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY || '';
 
   return (
-    <PageContainer>
-      <div className="p-6 lg:p-10 max-w-[900px] text-right" dir="rtl">
+    <div className="w-full min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
+      <div className="p-6 lg:p-10 max-w-[900px] mx-auto text-right bg-white rounded-2xl border border-slate-100 shadow-xs mt-4" dir="rtl">
         <PageHeader
           title="الفواتير والاشتراكات"
           subtitle="إدارة خطتك واشتراكك الحالي، وتتبع معدلات استهلاك الحساب."
         />
 
         {/* كرت ملخص خطة العميل الحالية */}
-        <div className="rounded-lg p-6 mb-6 bg-white border border-slate-100 shadow-sm mt-6">
+        <div className="rounded-lg p-6 mb-6 bg-slate-50 border border-slate-100 shadow-2xs mt-6">
           <p className="text-[11px] uppercase tracking-[1.5px] mb-2 text-slate-400 font-bold">حالة الحساب الحالي</p>
           <div className="flex items-start justify-between gap-6 flex-wrap">
             <div>
@@ -124,14 +122,14 @@ export default function BillingPage() {
         </div>
 
         {/* إحصائيات استهلاك الحساب ومحدودية الموارد */}
-        <div className="rounded-lg p-6 mb-10 bg-white border border-slate-100 shadow-sm">
+        <div className="rounded-lg p-6 mb-10 bg-slate-50 border border-slate-100 shadow-2xs">
           <p className="text-[11px] uppercase tracking-[1.5px] mb-4 text-slate-400 font-bold">📊 حجم استهلاك موارد الحساب</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-slate-50 p-4 rounded-xl">
+            <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-3xs">
               <div className="text-[20px] font-black text-slate-900">{usage.datasets}</div>
               <div className="text-[12px] text-slate-500 mt-0.5">مجموعات البيانات المرفوعة / {isPro ? 'لا محدود' : 'حد أقصى 3 ملفات'}</div>
             </div>
-            <div className="bg-slate-50 p-4 rounded-xl">
+            <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-3xs">
               <div className="text-[20px] font-black text-slate-900">{usage.reports}</div>
               <div className="text-[12px] text-slate-500 mt-0.5">التقارير المستخرجة / {isPro ? 'لا محدود' : 'حد أقصى 5 تقارير'}</div>
             </div>
@@ -141,7 +139,7 @@ export default function BillingPage() {
         <hr className="border-slate-100 my-8" />
 
         {/* عرض بطاقات الأسعار الاحترافية المدمجة والأسئلة الشائعة بسلام وأمان */}
-        <div className="mt-6 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+        <div className="mt-6 bg-white p-4 rounded-2xl border border-slate-50">
           <div className="mb-8 text-center">
             <h2 className="text-xl font-black text-slate-900">🏷️ باقات الاشتراك وتوصيات الترقية الاحترافية</h2>
             <p className="text-sm text-slate-500 mt-1">اختر الخطة المناسبة لحجم أعمالك وانتقل إلى تتبع حملاتك التسويقية بلا حدود.</p>
@@ -150,6 +148,6 @@ export default function BillingPage() {
           <PricingPlans />
         </div>
       </div>
-    </PageContainer>
+    </div>
   );
 }
