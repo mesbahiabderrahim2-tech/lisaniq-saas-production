@@ -1,4 +1,4 @@
-here// services/client.ts
+// services/client.ts
 import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface ClientData {
@@ -13,7 +13,7 @@ export class ClientService {
    * جلب أو إنشاء المنظمة التلقائية لمالك الحساب لضمان تجربة مستخدم سلسة بدون تعقيد
    */
   public static async getOrCreateOrganization(supabase: SupabaseClient, userId: string, userName: string) {
-    // 1. فحص ما إذا كان المستخدم يملك منظمة مسجلة بالفعل
+    // 1. فحص ما إذا كان للمستخدم يملك منظمة مسجلة بالفعل
     const { data: org, error } = await supabase
       .from('organizations')
       .select('*')
@@ -26,7 +26,7 @@ export class ClientService {
     const { data: newOrg, error: createError } = await supabase
       .from('organizations')
       .insert({
-        name: `وكالة ${userName || 'التسويق الذكية'}`,
+        name: userName ? `${userName} الذكية` : 'التسويق الذكي',
         owner_id: userId
       })
       .select()
@@ -46,12 +46,12 @@ export class ClientService {
       .select()
       .single();
 
-    if (error) throw new Error(`فشل إنشاء العميل التجاري: ${error.message}`);
+    if (error) throw new Error(`فشلت عملية إنشاء العميل التجاري: ${error.message}`);
     return data;
   }
 
   /**
-   * جلب قائمة كافة العملاء التابعين للمنظمة النشطة
+   * جلب قائمة كافة العملاء التابعين للمنتظم النشطة
    */
   public static async getClientsByOrganization(supabase: SupabaseClient, orgId: string) {
     const { data, error } = await supabase
@@ -60,7 +60,7 @@ export class ClientService {
       .eq('organization_id', orgId)
       .order('created_at', { ascending: false });
 
-    if (error) throw new Error(`فشل جلب قائمة العملاء: ${error.message}`);
+    if (error) throw new Error(`فشلت جلب قائمة العملاء: ${error.message}`);
     return data || [];
   }
 
