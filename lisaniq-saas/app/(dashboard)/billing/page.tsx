@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
-import { PageHeader } from '@/components/dashboard/PagePrimitives';
+import { PageContainer, PageHeader, Card } from '@/components/dashboard/PagePrimitives';
 import { StripeButton } from '@/components/dashboard/StripeButton';
 import PricingPlans from '@/components/PricingPlans';
 
@@ -24,21 +24,18 @@ export default function BillingPage() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // 1. جلب بيانات خطة العميل
         const { data: profileData } = await supabase
           .from('users')
           .select('plan, stripe_customer_id')
           .eq('id', user.id)
           .maybeSingle();
 
-        // 2. جلب بيانات الاشتراك من Stripe
         const { data: subData } = await supabase
           .from('subscriptions')
           .select('status, current_period_end, cancel_at_period_end')
           .eq('user_id', user.id)
           .maybeSingle();
 
-        // 3. جلب معدلات استهلاك الحساب للعميل الحالي
         const { count: datasetsCount } = await supabase
           .from('datasets')
           .select('*', { count: 'exact', head: true })
@@ -67,9 +64,11 @@ export default function BillingPage() {
 
   if (loading) {
     return (
-      <div className="w-full min-h-screen bg-slate-50 flex items-center justify-center font-bold text-slate-500" dir="rtl">
-        ⏳ جاري تحميل السجلات المالية الآمنة وفحص بوابة الدفع...
-      </div>
+      <PageContainer>
+        <div className="p-12 text-center text-sm font-medium" style={{ color: 'var(--slate)' }} dir="rtl">
+          ⏳ جاري تحميل السجلات المالية الآمنة وفحص بوابة الدفع...
+        </div>
+      </PageContainer>
     );
   }
 
@@ -79,29 +78,29 @@ export default function BillingPage() {
   const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY || '';
 
   return (
-    <div className="w-full min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
-      <div className="p-6 lg:p-10 max-w-[900px] mx-auto text-right bg-white rounded-2xl border border-slate-100 shadow-xs mt-4" dir="rtl">
+    <PageContainer>
+      <div className="max-w-5xl mx-auto text-right" dir="rtl">
         <PageHeader
           title="الفواتير والاشتراكات"
           subtitle="إدارة خطتك واشتراكك الحالي، وتتبع معدلات استهلاك الحساب."
         />
 
-        {/* كرت ملخص خطة العميل الحالية */}
-        <div className="rounded-lg p-6 mb-6 bg-slate-50 border border-slate-100 shadow-2xs mt-6">
-          <p className="text-[11px] uppercase tracking-[1.5px] mb-2 text-slate-400 font-bold">حالة الحساب الحالي</p>
+        {/* كرت حالة الاشتراك الحالي */}
+        <Card className="mb-6">
+          <p className="font-data text-[10px] font-semibold uppercase tracking-[1.5px] mb-2" style={{ color: 'var(--slate)' }}>حالة الحساب الحالي</p>
           <div className="flex items-start justify-between gap-6 flex-wrap">
             <div>
-              <h3 className="text-[20px] font-black text-slate-900 mb-1">
+              <h3 className="text-xl font-bold mb-1" style={{ color: 'var(--platinum)' }}>
                 {isPro ? '🚀 LisanIQ Pro (النسخة الاحترافية)' : 'الحساب الحالي: الخطة المجانية'}
               </h3>
               {isPro && subscription?.current_period_end && (
-                <p className="text-[12px] text-slate-500">
-                  تاريخ التجديد التلقائي القادم للفاتورة: <span className="font-bold text-slate-700">{new Date(subscription.current_period_end).toLocaleDateString('ar-EG')}</span>
+                <p className="text-sm" style={{ color: 'var(--silver)' }}>
+                  تاريخ التجديد التلقائي القادم للفاتورة: <span className="font-bold">{new Date(subscription.current_period_end).toLocaleDateString('ar-EG')}</span>
                 </p>
               )}
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="shrink-0">
               {isPro ? (
                 <StripeButton
                   text="⚙️ إدارة اشتراكك وتحديث بطاقة الدفع"
@@ -119,35 +118,28 @@ export default function BillingPage() {
               )}
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* إحصائيات استهلاك الحساب ومحدودية الموارد */}
-        <div className="rounded-lg p-6 mb-10 bg-slate-50 border border-slate-100 shadow-2xs">
-          <p className="text-[11px] uppercase tracking-[1.5px] mb-4 text-slate-400 font-bold">📊 حجم استهلاك موارد الحساب</p>
+        <Card className="mb-10">
+          <p className="font-data text-[10px] font-semibold uppercase tracking-[1.5px] mb-4" style={{ color: 'var(--slate)' }}>📊 حجم استهلاك موارد الحساب</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-3xs">
-              <div className="text-[20px] font-black text-slate-900">{usage.datasets}</div>
-              <div className="text-[12px] text-slate-500 mt-0.5">مجموعات البيانات المرفوعة / {isPro ? 'لا محدود' : 'حد أقصى 3 ملفات'}</div>
+            <div className="p-4 rounded-xl border" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--line-1)' }}>
+              <div className="font-data text-2xl font-bold mb-1" style={{ color: 'var(--platinum)' }}>{usage.datasets}</div>
+              <div className="text-xs" style={{ color: 'var(--slate)' }}>مجموعات البيانات المرفوعة / {isPro ? 'لا محدود' : 'حد أقصى 3 ملفات'}</div>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-3xs">
-              <div className="text-[20px] font-black text-slate-900">{usage.reports}</div>
-              <div className="text-[12px] text-slate-500 mt-0.5">التقارير المستخرجة / {isPro ? 'لا محدود' : 'حد أقصى 5 تقارير'}</div>
+            <div className="p-4 rounded-xl border" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--line-1)' }}>
+              <div className="font-data text-2xl font-bold mb-1" style={{ color: 'var(--platinum)' }}>{usage.reports}</div>
+              <div className="text-xs" style={{ color: 'var(--slate)' }}>التقارير المستخرجة / {isPro ? 'لا محدود' : 'حد أقصى 5 تقارير'}</div>
             </div>
           </div>
-        </div>
+        </Card>
 
-        <hr className="border-slate-100 my-8" />
-
-        {/* عرض بطاقات الأسعار والأسئلة الشائعة */}
-        <div className="mt-6 bg-white p-4 rounded-2xl border border-slate-50">
-          <div className="mb-8 text-center">
-            <h2 className="text-xl font-black text-slate-900">🏷️ باقات الاشتراك وتوصيات الترقية الاحترافية</h2>
-            <p className="text-sm text-slate-500 mt-1">اختر الخطة المناسبة لحجم أعمالك وانتقل إلى تتبع حملاتك التسويقية بلا حدود.</p>
-          </div>
-          
+        {/* عرض بطاقات خطط الأسعار والأسئلة الشائعة */}
+        <div className="mt-12 pt-6" style={{ borderTop: '1px solid var(--line-1)' }}>
           <PricingPlans />
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }
