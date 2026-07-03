@@ -65,7 +65,7 @@ export default function BillingPage() {
   if (loading) {
     return (
       <PageContainer>
-        <div className="p-12 text-center text-sm font-medium" style={{ color: 'var(--slate)' }} dir="rtl">
+        <div className="p-12 text-center text-sm font-semibold text-slate-300" dir="rtl">
           ⏳ جاري تحميل السجلات المالية الآمنة وفحص بوابة الدفع...
         </div>
       </PageContainer>
@@ -81,21 +81,21 @@ export default function BillingPage() {
     <PageContainer>
       <div className="max-w-5xl mx-auto text-right" dir="rtl">
         <PageHeader
-          title="الفواتير والاشتراكات"
-          subtitle="إدارة خطتك واشتراكك الحالي، وتتبع معدلات استهلاك الحساب."
+          title="الفاتورة والاشتراكات"
+          subtitle="إدارة خطتك الحالية، وتتبع معدلات استهلاك الحساب والمبيعات."
         />
 
-        {/* كرت حالة الاشتراك الحالي */}
+        {/* كرت حالة الاشتراك الحالي (تم تعديل النصوص لتصبح واضحة جداً) */}
         <Card className="mb-6">
-          <p className="font-data text-[10px] font-semibold uppercase tracking-[1.5px] mb-2" style={{ color: 'var(--slate)' }}>حالة الحساب الحالي</p>
+          <p className="font-data text-[11px] font-bold uppercase tracking-[1.5px] mb-2 text-indigo-400">حالة الحساب الحالي</p>
           <div className="flex items-start justify-between gap-6 flex-wrap">
             <div>
-              <h3 className="text-xl font-bold mb-1" style={{ color: 'var(--platinum)' }}>
-                {isPro ? '🚀 LisanIQ Pro (النسخة الاحترافية)' : 'الحساب الحالي: الخطة المجانية'}
+              <h3 className="text-xl font-black text-slate-100">
+                {isPro ? '🚀 LisanIQ Pro (الإصدار الاحترافي)' : 'الحساب الحالي: إنشاء تطبيق (الخطة المجانية)'}
               </h3>
               {isPro && subscription?.current_period_end && (
-                <p className="text-sm" style={{ color: 'var(--silver)' }}>
-                  تاريخ التجديد التلقائي القادم للفاتورة: <span className="font-bold">{new Date(subscription.current_period_end).toLocaleDateString('ar-EG')}</span>
+                <p className="text-sm text-slate-200 mt-1">
+                  تاريخ تجديد الفاتورة القادم: <span className="font-bold text-white">{new Date(subscription.current_period_end).toLocaleDateString('ar-EG')}</span>
                 </p>
               )}
             </div>
@@ -120,25 +120,23 @@ export default function BillingPage() {
           </div>
         </Card>
 
-        {/* إحصائيات استهلاك الحساب ومحدودية الموارد */}
+        {/* إحصائيات استهلاك الموارد (تم تحسين الوضوح والتباين هنا) */}
         <Card className="mb-10">
-          <p className="font-data text-[10px] font-semibold uppercase tracking-[1.5px] mb-4" style={{ color: 'var(--slate)' }}>📊 حجم استهلاك موارد الحساب</p>
+          <p className="font-data text-[11px] font-bold uppercase tracking-[1.5px] mb-4 text-indigo-400">📊 حجم استهلاك موارد الحساب</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl border" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--line-1)' }}>
-              <div className="font-data text-2xl font-bold mb-1" style={{ color: 'var(--platinum)' }}>{usage.datasets}</div>
-              <div className="text-xs" style={{ color: 'var(--slate)' }}>مجموعات البيانات المرفوعة / {isPro ? 'لا محدود' : 'حد أقصى 3 ملفات'}</div>
+            <div className="p-5 rounded-xl border border-slate-800 bg-slate-900/50">
+              <div className="font-data text-3xl font-black text-white mb-1">{usage.datasets}</div>
+              <div className="text-sm text-slate-200 font-medium">مجموعات البيانات المرفوعة / {isPro ? 'لا محدود' : 'أقصى حد 3 ملفات'}</div>
             </div>
-            <div className="p-4 rounded-xl border" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--line-1)' }}>
-              <div className="font-data text-2xl font-bold mb-1" style={{ color: 'var(--platinum)' }}>{usage.reports}</div>
-              <div className="text-xs" style={{ color: 'var(--slate)' }}>التقارير المستخرجة / {isPro ? 'لا محدود' : 'حد أقصى 5 تقارير'}</div>
+            <div className="p-5 rounded-xl border border-slate-800 bg-slate-900/50">
+              <div className="font-data text-3xl font-black text-white mb-1">{usage.reports}</div>
+              <div className="text-sm text-slate-200 font-medium">التقارير المستخرجة / {isPro ? 'لا محدود' : 'أقصى حد 5 تقارير'}</div>
             </div>
           </div>
         </Card>
 
-        {/* عرض بطاقات خطط الأسعار والأسئلة الشائعة */}
-        <div className="mt-12 pt-6" style={{ borderTop: '1px solid var(--line-1)' }}>
-          <PricingPlans />
-        </div>
+        {/* عرض خطط الأسعار المعدلة */}
+        <PricingPlans />
       </div>
     </PageContainer>
   );
