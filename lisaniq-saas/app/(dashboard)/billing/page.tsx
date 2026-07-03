@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 import { format } from 'date-fns';
 import { PageContainer, PageHeader } from '@/components/dashboard/PagePrimitives';
 import { StripeButton } from '@/components/dashboard/StripeButton';
+import PricingPlans from '@/components/PricingPlans';
 
 export const metadata = {
   title: 'الفواتير - LisanIQ',
@@ -35,7 +36,7 @@ export default async function BillingPage() {
     }
   );
 
-  // الحصول على المستخدم الحالي وقاعدة البيانات
+  // الحصول على المستخدم الحالي والتحقق من الجلسة
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -67,7 +68,6 @@ export default async function BillingPage() {
     .eq('user_id', user.id);
 
   const currentPlan = profileRes?.plan || 'free';
-  const hasActiveSub = !!profileRes?.stripe_customer_id;
   const subStatus = subRes?.status;
   const datasetsCount = userDatasets || 0;
   const reportsCount = userReports || 0;
@@ -84,78 +84,67 @@ export default async function BillingPage() {
 
   return (
     <PageContainer>
-      <div className="p-6 lg:p-10 max-w-[900px]">
+      <div className="p-6 lg:p-10 max-w-[900px] text-right" dir="rtl">
         <PageHeader
-          title="الفواتير"
-          subtitle="إدارة خطتك واشتراكك، وتتبع استخدامك الحالي."
+          title="الفواتير والاشتراكات"
+          subtitle="إدارة خطتك واشتراكك الحالي، وتتبع معدلات استهلاك الحساب."
         />
 
-        {/* لافتات تحذير الدفع */}
+        {/* لافتات تحذير الدفع أو الإلغاء */}
         {subStatus === 'past_due' && (
-          <div className="rounded-lg p-4 mb-6 flex items-start gap-3 bg-[rgba(220,75,75,0.08)] border border-[px solid rgba(220,75,75,0.25)]">
-            <svg className="w-5 h-5 text-[#f44a4a] flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <div>
-              <p className="text-[13px] font-medium text-[#f44a4a] mb-0.5">الدفع متأخر!</p>
-              <p className="text-[12px] text-[#f44a4a] opacity-90">
-                فشلت عملية الدفع الأخيرة. يرجى تحديث طريقة الدفع الخاصة بك للاحتفاظ بوصولك إلى النسخة الاحترافية.
-              </p>
+          <div className="rounded-lg p-4 mb-6 flex items-start gap-3 bg-[rgba(220,75,75,0.08)] border border-[1px solid rgba(220,75,75,0.25)]">
+            <div className="text-[13px] font-medium text-[#f44a4a]">
+              <p className="font-bold mb-0.5">🚨 الدفع متأخر!</p>
+              <p className="text-[12px] opacity-90">فشلت عملية الدفع الأخيرة. يرجى تحديث طريقة الدفع الخاصة بك للاحتفاظ بوصولك إلى النسخة الاحترافية.</p>
             </div>
           </div>
         )}
 
         {subRes?.cancel_at_period_end && (
           <div className="rounded-lg p-4 mb-6 flex items-start gap-3 bg-[rgba(212,146,42,0.08)] border border-[1px solid rgba(212,146,42,0.25)]">
-            <svg className="w-5 h-5 text-[#e89c27] flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <div>
-              <p className="text-[13px] font-medium text-[#e89c27] mb-0.5">تم إلغاء الخطة الحالية</p>
-              <p className="text-[12px] text-[#e89c27] opacity-90">
-                تم إلغاء اشتراكك وسيعود إلى الوضع المجاني في نهاية فترة الفاتورة.
-              </p>
+            <div className="text-[13px] font-medium text-[#e89c27]">
+              <p className="font-bold mb-0.5">⚠️ تم إلغاء الخطة الحالية</p>
+              <p className="text-[12px] opacity-90">تم إلغاء اشتراكك وسيعود حسابك تلقائياً إلى الوضع المجاني في نهاية فترة الفاتورة الحالية.</p>
             </div>
           </div>
         )}
 
-        {/* بطاقة الخطة الحالية */}
-        <div className="rounded-lg p-6 mb-6 bg-[rgba(252,252,252,0.03)] border border-[1px solid var(--line-1)]">
-          <p className="text-[11px] uppercase tracking-[1.5px] mb-3 text-[var(--slate)]">الخطة الحالية</p>
+        {/* بطاقة ملخص الخطة الحالية للمستخدم */}
+        <div className="rounded-lg p-6 mb-6 bg-white border border-slate-100 shadow-sm">
+          <p className="text-[11px] uppercase tracking-[1.5px] mb-2 text-slate-400 font-bold">حالة الحساب الحالي</p>
           <div className="flex items-start justify-between gap-6 flex-wrap">
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h3 className="text-[22px] font-bold text-[var(--platinum)]">
-                  {isPro ? 'LisanIQ Pro' : 'الحساب مجاني (مجاني)'}
+              <div className="flex items-center gap-3 mb-1">
+                <h3 className="text-[20px] font-black text-slate-900">
+                  {isPro ? '🚀 LisanIQ Pro' : 'الحساب الحالي: الخطة المجانية'}
                 </h3>
                 {subStatus === 'trialing' && (
-                  <span className="text-[10px] uppercase tracking-[1.5px] px-2 py-0.5 rounded bg-[rgba(201,168,76,0.12)] border border-[1px solid rgba(201,168,76,0.3)] text-[var(--gold)]">
-                    محاكمة
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-700">
+                    فترة تجريبية
                   </span>
                 )}
               </div>
 
-              {/* فترة الفاتورة */}
               {isPro && subRes?.current_period_end && (
-                <p className="text-[12px] text-[var(--slate)]">
-                  {subRes.cancel_at_period_end ? 'ينتهي في تاريخ ' : 'يتجدد تلقائياً في تاريخ '}
-                  {format(new Date(subRes.current_period_end), 'dd/MM/yyyy')}
+                <p className="text-[12px] text-slate-500">
+                  {subRes.cancel_at_period_end ? 'ينتهي الوصول التجاري في تاريخ: ' : 'موعد التجديد التلقائي القادم: '}
+                  <span className="font-bold text-slate-700">{format(new Date(subRes.current_period_end), 'dd/MM/yyyy')}</span>
                 </p>
               )}
             </div>
 
-            {/* الإجراءات الحركية للأزرار */}
+            {/* أزرار التحكم الديناميكية المرتبطة بـ Stripe */}
             <div className="flex flex-col gap-3">
               {isPro ? (
                 <StripeButton
-                  text="إدارة الاشتراك"
+                  text="⚙️ إدارة اشتراكك وتحديث البطاقة"
                   endpoint="/api/portal"
                   priceId=""
                   variant="muted"
                 />
               ) : (
                 <StripeButton
-                  text="الترقية إلى النسخة الاحترافية"
+                  text="⚡ ترقية حسابي الآن"
                   endpoint="/api/checkout"
                   priceId={priceId}
                   variant="primary"
@@ -165,51 +154,32 @@ export default async function BillingPage() {
           </div>
         </div>
 
-        {/* طريقة الاستخدام ومعدلات الاستهلاك */}
-        <div className="rounded-lg p-6 mb-6 bg-[rgba(252,252,252,0.03)] border border-[1px solid var(--line-1)]">
-          <p className="text-[11px] uppercase tracking-[1.5px] mb-3 text-[var(--slate)]">طريقة الاستخدام</p>
-          <div className="grid sm:grid-cols-2 gap-2">
-            <div>
-              <div className="text-[18px] font-bold text-[var(--platinum)]">{datasetsCount}</div>
-              <div className="text-[12px] text-[var(--slate)]">مجموعات البيانات / {isPro ? '3 مجموعات بيانات' : 'لا محدود'}</div>
+        {/* إحصائيات معدلات الاستخدام واستهلاك المحرك */}
+        <div className="rounded-lg p-6 mb-10 bg-white border border-slate-100 shadow-sm">
+          <p className="text-[11px] uppercase tracking-[1.5px] mb-4 text-slate-400 font-bold">📊 حجم استهلاك موارد الحساب</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-slate-50 p-4 rounded-xl">
+              <div className="text-[20px] font-black text-slate-900">{datasetsCount}</div>
+              <div className="text-[12px] text-slate-500 mt-0.5">مجموعات البيانات المرفوعة / {isPro ? 'لا محدود' : 'حد أقصى 3'}</div>
             </div>
-            <div>
-              <div className="text-[18px] font-bold text-[var(--platinum)]">{reportsCount}</div>
-              <div className="text-[12px] text-[var(--slate)]">التقارير / {isPro ? '5 تقارير' : 'لا محدود'}</div>
+            <div className="bg-slate-50 p-4 rounded-xl">
+              <div className="text-[20px] font-black text-slate-900">{reportsCount}</div>
+              <div className="text-[12px] text-slate-500 mt-0.5">التقارير المستخرجة / {isPro ? 'لا محدود' : 'حد أقصى 5'}</div>
             </div>
           </div>
         </div>
 
-        {/* قائمة الميزات وعرض الخطط المتوفرة */}
-        {!isPro && (
-          <div className="rounded-xl p-6 relative overflow-hidden bg-[linear-gradient(135deg,#0d1628_0%,#0e1830_100%)] border border-[1px solid rgba(61,111,232,0.3)]">
-            <div className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none opacity-30 bg-[radial-gradient(circle_at_top_right,rgba(61,111,232,0.25),transparent_60%)]" />
-            <h3 className="text-[18px] font-bold text-[var(--platinum)] mb-1">LisanIQ Pro</h3>
-            <p className="text-[13px] text-[var(--silver)] mb-5">تحليلات غير محدودة، تقارير غير محدودة، تصدير ملفات PDF والوصول إلى واجهة برمجة التطبيقات (API).</p>
-            
-            <ul className="grid sm:grid-cols-2 gap-2 mb-6">
-              <li className="flex items-center gap-2 text-[12.5px] text-[var(--silver)]">
-                <svg className="w-3.5 h-3.5 text-[#3d77e8]" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                تحليلات غير محدودة وميزات الذكاء الاصطناعي
-              </li>
-              <li className="flex items-center gap-2 text-[12.5px] text-[var(--silver)]">
-                <svg className="w-3.5 h-3.5 text-[#3d77e8]" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                تصدير غير محدود وتقارير مخصصة
-              </li>
-            </ul>
+        <hr className="border-slate-100 my-8" />
 
-            <StripeButton
-              text="ابدأ تجربتك المجانية لمدة 14 يوماً"
-              endpoint="/api/checkout"
-              priceId={priceId}
-              variant="primary"
-            />
+        {/* إدراج كتل بطاقات الأسعار الكاملة والتوصيات والأسئلة الشائعة هنا */}
+        <div className="mt-6 bg-white p-4 rounded-2xl border border-slate-50 shadow-xs">
+          <div className="mb-6 text-center">
+            <h2 className="text-xl font-black text-slate-900">🏷️ باقات الاشتراك المتاحة</h2>
+            <p className="text-xs text-slate-500 mt-1">اختر الخطة المناسبة لأعمالك وابدأ في تحسين حملاتك الإعلانية فوراً.</p>
           </div>
-        )}
+          
+          <PricingPlans />
+        </div>
       </div>
     </PageContainer>
   );
