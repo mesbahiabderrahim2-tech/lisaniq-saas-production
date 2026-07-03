@@ -138,7 +138,7 @@ export default function BillingPage() {
 
         <hr className="border-slate-100 my-8" />
 
-        {/* عرض بطاقات الأسعار الاحترافية المدمجة والأسئلة الشائعة بسلام وأمان */}
+        {/* عرض بطاقات الأسعار والأسئلة الشائعة */}
         <div className="mt-6 bg-white p-4 rounded-2xl border border-slate-50">
           <div className="mb-8 text-center">
             <h2 className="text-xl font-black text-slate-900">🏷️ باقات الاشتراك وتوصيات الترقية الاحترافية</h2>
