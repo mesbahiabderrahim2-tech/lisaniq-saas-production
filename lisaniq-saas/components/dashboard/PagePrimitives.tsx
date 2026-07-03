@@ -5,7 +5,7 @@
 
 import Link from 'next/link'
 
-// ── Page container (المكون المضاف لحل مشكلة الفواتير بدون أي حذف) ──
+// ── Page container ──
 interface PageContainerProps {
   children: React.ReactNode;
   className?: string;
@@ -78,7 +78,7 @@ export function SectionLabel({ num, label }: SectionLabelProps) {
   )
 }
 
-// ── Card wrapper ───────────────────────────────────────
+// ── Card wrapper (إصلاح تباين الخلفية الداكنة لمنع التحول للون الأبيض) ──
 interface CardProps {
   children?: React.ReactNode
   className?: string
