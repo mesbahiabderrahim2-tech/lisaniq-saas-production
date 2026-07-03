@@ -12,14 +12,17 @@ export async function POST(request: NextRequest) {
   if (!supabaseUrl || !supabaseKey) {
     console.error('❌ Supabase credentials are missing in environment variables.');
     return NextResponse.json(
-      { error: 'إعدادات السيرفر غير مكتملة لتلقي الـ Webhook حالياً.' },
+      { error: 'حاليةً، إعدادات السيرفر غير مكتملة لتلقي الـ Webhook.' },
       { status: 500 }
     );
   }
 
   // إنشاء اتصال العميل الخلفي ذو الصلاحيات العالية لتحديث الاشتراكات
   const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: { persistSession: false, autoRefreshToken: false }
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
+    }
   });
 
   try {
@@ -32,12 +35,12 @@ export async function POST(request: NextRequest) {
       event = constructWebhookEvent(rawBody, signature);
     } catch (err: any) {
       console.error(`❌ Webhook signature verification failed: ${err.message}`);
-      return NextResponse.json({ error: 'توقيع الـ Webhook غير صالحة برمجياً.' }, { status: 400 });
+      return NextResponse.json({ error: `توقيع الـ Webhook غير صالحة برمجياً: ${err.message}` }, { status: 400 });
     }
 
     console.log(`📥 Webhook event verified and received: ${event.type}`);
 
-    // المعالجة البرمجة الكاملة والأصلية لأحداث الدفع الحيوية
+    // المعالجة البرمجية الكاملة والأصلية لأحداث الدفع الحيوية للمشروع
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as any;
@@ -46,7 +49,7 @@ export async function POST(request: NextRequest) {
         const subscriptionId = session.subscription;
 
         if (userId) {
-          // تحديث بيانات المستخدم في قاعدة البيانات إلى ترقية Pro فورية
+          // فورية PRO تحديث بيانات المستخدم في قاعدة البيانات إلى ترقية
           await supabase
             .from('users')
             .update({
@@ -67,7 +70,7 @@ export async function POST(request: NextRequest) {
         const priceId = subscription.items.data[0].price.id;
         const internalPlanName = mapStripePlanName(priceId);
 
-        // تحديث نوع الخطة بناءً على التعديل الجديد في لوحة تحكم Stripe
+        // Stripe تحديث نوع الخطة بناءً على التعديل الجديد في لوحة تحكم
         await supabase
           .from('users')
           .update({ plan: internalPlanName })
