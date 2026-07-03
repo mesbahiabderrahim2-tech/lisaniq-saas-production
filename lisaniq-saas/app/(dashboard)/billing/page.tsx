@@ -65,8 +65,8 @@ export default function BillingPage() {
   if (loading) {
     return (
       <PageContainer>
-        <div className="p-12 text-center text-sm font-semibold text-slate-300" dir="rtl">
-          ⏳ جاري تحميل السجلات المالية الآمنة وفحص بوابة الدفع...
+        <div className="p-12 text-center text-sm font-semibold" style={{ color: 'var(--slate)' }} dir="rtl">
+          ⏳ جاري تحميل السجلات المالية وفحص البوابة الرقمية الآمنة...
         </div>
       </PageContainer>
     );
@@ -81,36 +81,37 @@ export default function BillingPage() {
     <PageContainer>
       <div className="max-w-5xl mx-auto text-right" dir="rtl">
         <PageHeader
-          title="الفاتورة والاشتراكات"
-          subtitle="إدارة خطتك الحالية، وتتبع معدلات استهلاك الحساب والمبيعات."
+          title="الفواتير والاشتراكات"
+          subtitle="إدارة خطتك واشتراكك الحالي وتتبع المبيعات ومعدلات استهلاك موارد حسابك."
         />
 
-        {/* كرت حالة الاشتراك الحالي (تم تعديل النصوص لتصبح واضحة جداً) */}
+        {/* كرت حالة الاشتراك الحالي - إصلاح الزر البنفسجي وتمرير النص بشكل صريح */}
         <Card className="mb-6">
-          <p className="font-data text-[11px] font-bold uppercase tracking-[1.5px] mb-2 text-indigo-400">حالة الحساب الحالي</p>
+          <p className="font-data text-[11px] font-bold uppercase tracking-[1.5px] mb-2" style={{ color: 'var(--slate)' }}>حالة الحساب الحالي</p>
           <div className="flex items-start justify-between gap-6 flex-wrap">
             <div>
-              <h3 className="text-xl font-black text-slate-100">
-                {isPro ? '🚀 LisanIQ Pro (الإصدار الاحترافي)' : 'الحساب الحالي: إنشاء تطبيق (الخطة المجانية)'}
+              <h3 className="text-xl font-black" style={{ color: 'var(--platinum)' }}>
+                {isPro ? '🚀 LisanIQ Pro (الإصدار الاحترافي)' : 'الحساب الحالي: الخطة المجانية الأساسية'}
               </h3>
               {isPro && subscription?.current_period_end && (
-                <p className="text-sm text-slate-200 mt-1">
-                  تاريخ تجديد الفاتورة القادم: <span className="font-bold text-white">{new Date(subscription.current_period_end).toLocaleDateString('ar-EG')}</span>
+                <p className="text-sm mt-1" style={{ color: 'var(--silver)' }}>
+                  تاريخ تجديد الفاتورة التلقائي: <span className="font-bold text-white">{new Date(subscription.current_period_end).toLocaleDateString('ar-EG')}</span>
                 </p>
               )}
             </div>
 
-            <div className="shrink-0">
+            {/* تم حل الأزمة البرمجية هنا عبر إدراج نص تفاعلي كامل للزر البنفسجي والأزرار التابعة */}
+            <div className="shrink-0 flex items-center justify-end min-w-[180px]">
               {isPro ? (
                 <StripeButton
-                  text="⚙️ إدارة اشتراكك وتحديث بطاقة الدفع"
+                  text="⚙️ إدارة الاشتراك وتحديث بطاقة الدفع"
                   endpoint="/api/portal"
                   priceId=""
                   variant="muted"
                 />
               ) : (
                 <StripeButton
-                  text="⚡ ترقية حسابي الآن للنسخة الاحترافية"
+                  text="⚡ ترقية حسابي الآن"
                   endpoint="/api/checkout"
                   priceId={priceId}
                   variant="primary"
@@ -120,22 +121,21 @@ export default function BillingPage() {
           </div>
         </Card>
 
-        {/* إحصائيات استهلاك الموارد (تم تحسين الوضوح والتباين هنا) */}
+        {/* إحصائيات استهلاك الموارد الموحدة */}
         <Card className="mb-10">
-          <p className="font-data text-[11px] font-bold uppercase tracking-[1.5px] mb-4 text-indigo-400">📊 حجم استهلاك موارد الحساب</p>
+          <p className="font-data text-[11px] font-bold uppercase tracking-[1.5px] mb-4" style={{ color: 'var(--slate)' }}>📊 حجم استهلاك موارد الحساب</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-5 rounded-xl border border-slate-800 bg-slate-900/50">
-              <div className="font-data text-3xl font-black text-white mb-1">{usage.datasets}</div>
-              <div className="text-sm text-slate-200 font-medium">مجموعات البيانات المرفوعة / {isPro ? 'لا محدود' : 'أقصى حد 3 ملفات'}</div>
+            <div className="p-5 rounded-xl border bg-opacity-20" style={{ background: 'var(--surface-1)', borderColor: 'var(--line-1)' }}>
+              <div className="font-data text-3xl font-black mb-1" style={{ color: 'var(--platinum)' }}>{usage.datasets}</div>
+              <div className="text-sm font-medium" style={{ color: 'var(--silver)' }}>مجموعات البيانات المرفوعة / {isPro ? 'لا محدود' : 'حد أقصى 3 ملفات'}</div>
             </div>
-            <div className="p-5 rounded-xl border border-slate-800 bg-slate-900/50">
-              <div className="font-data text-3xl font-black text-white mb-1">{usage.reports}</div>
-              <div className="text-sm text-slate-200 font-medium">التقارير المستخرجة / {isPro ? 'لا محدود' : 'أقصى حد 5 تقارير'}</div>
+            <div className="p-5 rounded-xl border bg-opacity-20" style={{ background: 'var(--surface-1)', borderColor: 'var(--line-1)' }}>
+              <div className="font-data text-3xl font-black mb-1" style={{ color: 'var(--platinum)' }}>{usage.reports}</div>
+              <div className="text-sm font-medium" style={{ color: 'var(--silver)' }}>التقارير المستخرجة / {isPro ? 'لا محدود' : 'حد أقصى 5 تقارير'}</div>
             </div>
           </div>
         </Card>
 
-        {/* عرض خطط الأسعار المعدلة */}
         <PricingPlans />
       </div>
     </PageContainer>
