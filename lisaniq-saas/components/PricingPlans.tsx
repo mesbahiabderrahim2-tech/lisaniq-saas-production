@@ -2,104 +2,173 @@
 'use client';
 
 import React, { useState } from 'react';
-import { createBrowserClient } from '@supabase/ssr';
+import { Check, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function PricingPlans() {
-  // الاتصال الآمن والمتوافق مع إصدار مشروعك الحالي
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
+  const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
-  const [isLoading, setIsLoading] = useState(false);
+  const plans = [
+    {
+      id: 'free',
+      name: 'الخطة المجانية',
+      description: 'لتجربة المحرك واكتشاف الفرص المبدئية',
+      price: { monthly: 0, yearly: 0 },
+      features: [
+        'تحليل ملف CSV واحد شهرياً',
+        'تتبع عميل تجاري واحد فقط',
+        'الوصول إلى التوصيات الحرجة (🚨)',
+        'تحديث البيانات يدوياً'
+      ],
+      buttonText: 'حسابك الحالي',
+      variant: 'outline' as const,
+      disabled: true
+    },
+    {
+      id: 'pro',
+      name: 'LisanIQ Pro',
+      description: 'الحل المتكامل للمسوقين والوكالات لإيقاف الهدر المالي',
+      price: { monthly: 49, yearly: 39 },
+      features: [
+        'تحليل ملفات CSV غير محدود',
+        'إدارة حسابات عملاء متعددة بلا حدود',
+        'الوصول الكامل لجميع التوصيات (الحرجة، العالية، والمثالية)',
+        'استخراج التقارير التنفيذية للعملاء بنقرة واحدة',
+        'أرشفة تاريخية كاملة لقرارات المحرك المستدامة',
+        'دعم فني متقدم عبر الواتساب والبريد'
+      ],
+      buttonText: 'قم بالترقية إلى الإصدار الاحترافي 🚀',
+      variant: 'default' as const,
+      isPopular: true
+    }
+  ];
 
-  const handleUpgrade = async (planType: string) => {
-    setIsLoading(true);
+  const faqs = [
+    {
+      question: 'كيف يقوم المحرك باكتشاف هدر الميزانية؟',
+      answer: 'يقوم المحرك بقراءة متقدمة لبيانات الحملات من ملف الـ CSV ومقارنة معدلات التحويل التاريخية، وتكلفة الاكتساب الحالية (CPA)، والعائد على الإنفاق الإعلاني (ROAS) مع المستهدفات المطلوبة لتحديد الحملات المسببة للنزيف فوراً.'
+    },
+    {
+      question: 'هل بيانات عملائي آمنة عند رفع الملفات؟',
+      answer: 'نعم، الأمان هو أولويتنا القصوى. يتم معالجة وتشفير كافة البيانات سحابياً بشكل مؤقت لاستخراج التوصيات، ولا يتم مشاركتها أو استخدامها لأي أغراض أخرى خارج نطاق حسابك المخصص.'
+    },
+    {
+      question: 'هل يمكنني إلغاء الاشتراك في أي وقت؟',
+      answer: 'بالتأكيد. يمكنك إلغاء اشتراكك أو ترقيته أو تعديله بنقرة واحدة من صفحة إعدادات الفواتير عبر بوابة التمويل الآمنة الخاصة بـ Stripe دون أي تعقيدات.'
+    }
+  ];
+
+  const handleUpgrade = async (planId: string) => {
+    if (planId === 'free') return;
+    setLoadingPlan(planId);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        alert('🔒 يرجى تسجيل الدخول أولاً لتتمكن من الترقية.');
-        window.location.href = '/login';
-        return;
-      }
-
-      // استدعاء بوابة الدفع بأمان
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: planType, userId: user.id }),
+        body: JSON.stringify({ plan: billingPeriod === 'monthly' ? 'pro_monthly' : 'pro_yearly' })
       });
-
-      const result = await response.json();
-
-      if (result.url) {
-        window.location.href = result.url; // التوجه لصفحة الدفع
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
       } else {
-        throw new Error(result.error || 'فشل تشغيل بوابة الدفع.');
+        alert(data.error || 'حدث خطأ أثناء الاتصال ببوابة الدفع.');
       }
-    } catch (error: any) {
-      alert(`⚠️ خطأ في معالجة الترقية: ${error.message}`);
+    } catch (err) {
+      console.error(err);
+      alert('فشل الاتصال بالسيرفر، يرجى المحاولة مرة أخرى.');
     } finally {
-      setIsLoading(false);
+      setLoadingPlan(null);
     }
   };
 
   return (
-    <div className="mt-16 text-right" dir="rtl">
-      <div className="text-center mb-10">
-        <h2 className="text-3xl font-black text-slate-900">خطط الأسعار والترقية الإحترافية 🚀</h2>
-        <p className="text-slate-500 mt-2 text-sm">اختر الخطة المناسبة لحجم أعمالك وابدأ في مضاعفة أرباح حملاتك الآن.</p>
+    <div className="w-full max-w-5xl mx-auto py-4 px-2" dir="rtl">
+      {/* مفتاح التبديل بين الشهري والسنوي */}
+      <div className="flex justify-center items-center gap-4 mb-10">
+        <span className={`text-sm font-medium ${billingPeriod === 'monthly' ? 'text-slate-900 font-bold' : 'text-slate-400'}`}>فاتورة شهرية</span>
+        <button
+          onClick={() => setBillingPeriod(billingPeriod === 'monthly' ? 'yearly' : 'monthly')}
+          className="w-12 h-6 bg-slate-900 rounded-full p-1 transition-all duration-200 relative flex items-center"
+        >
+          <div className={`w-4 h-4 bg-white rounded-full transition-all duration-200 shadow-sm ${billingPeriod === 'yearly' ? 'translate-x-[-24px]' : 'translate-x-0'}`} />
+        </button>
+        <span className={`text-sm font-medium flex items-center gap-1.5 ${billingPeriod === 'yearly' ? 'text-slate-900 font-bold' : 'text-slate-400'}`}>
+          فاتورة سنوية
+          <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">توفير 20%</span>
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-        {/* الخطة المجانية */}
-        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <div>
-            <span className="text-xs font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">الخطة الحالية</span>
-            <h3 className="text-xl font-bold text-slate-800 mt-2">الحساب المجاني (Free)</h3>
-            <p className="text-slate-400 text-xs mt-1">لتجربة المنصة واستكشاف محرك القرارات الذكي.</p>
-            <div className="my-6">
-              <span className="text-4xl font-black text-slate-900">$0</span>
-              <span className="text-slate-500 text-sm"> / شهرياً</span>
+      {/* بطاقات عرض الخطط والأسعار */}
+      <div className="grid md:grid-cols-2 gap-8 mb-16">
+        {plans.map((plan) => (
+          <div
+            key={plan.id}
+            className={`bg-white rounded-2xl border p-6 flex flex-col justify-between relative transition-all duration-200 ${plan.isPopular ? 'border-indigo-600 shadow-md md:scale-[1.02]' : 'border-slate-200 shadow-xs'}`}
+          >
+            {plan.isPopular && (
+              <span className="absolute top-0 left-1/2 translate-x-[-50%] translate-y-[-50%] bg-indigo-600 text-white text-xs font-black px-4 py-1 rounded-full">
+                🔥 الأكثر اختياراً وتوفيراً
+              </span>
+            )}
+
+            <div>
+              <h3 className="text-xl font-black text-slate-900 mb-1">{plan.name}</h3>
+              <p className="text-xs text-slate-500 mb-6">{plan.description}</p>
+              
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-4xl font-black text-slate-900">${billingPeriod === 'monthly' ? plan.price.monthly : plan.price.yearly}</span>
+                <span className="text-sm text-slate-400">/ شهرياً</span>
+              </div>
+
+              <ul className="space-y-3 mb-8">
+                {plan.features.map((feature, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-slate-600">
+                    <Check className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul className="space-y-3 text-sm text-slate-600 border-t border-slate-100 pt-4">
-              <li>• رفع حتى 3 ملفات CSV شهرياً</li>
-              <li>• تحليل حتى 5000 صف لكل تقرير</li>
-              <li>• لوحة مؤشرات الأداء الأساسية</li>
-            </ul>
+
+            <Button
+              onClick={() => handleUpgrade(plan.id)}
+              disabled={plan.disabled || loadingPlan === plan.id}
+              className={`w-full font-bold py-3 rounded-xl transition-all duration-200 ${plan.isPopular ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+            >
+              {loadingPlan === plan.id ? '⏳ جاري الانتقال الآمن لبوابة Stripe...' : plan.buttonText}
+            </Button>
           </div>
-          <button disabled className="w-full mt-8 bg-slate-100 text-slate-400 font-bold py-3 rounded-xl text-sm cursor-not-allowed">
-            خطتك النشطة حالياً
-          </button>
+        ))}
+      </div>
+
+      {/* قسم الأسئلة الشائعة */}
+      <div className="border-t border-slate-100 pt-12">
+        <div className="text-center mb-8">
+          <h3 className="text-lg font-black text-slate-900 flex items-center justify-center gap-2">
+            <HelpCircle className="w-5 h-5 text-indigo-600" />
+            الأسئلة الشائعة حول الفواتير والاشتراك
+          </h3>
         </div>
 
-        {/* الخطة الاحترافية */}
-        <div className="bg-slate-900 text-white p-8 rounded-3xl border-2 border-indigo-500 shadow-xl relative flex flex-col justify-between overflow-hidden">
-          <div className="absolute top-0 right-0 bg-indigo-600 text-white text-xs font-black px-4 py-1.5 rounded-bl-xl">
-            الأكثر مبيعاً 🔥
-          </div>
-          <div>
-            <span className="text-xs font-bold bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full">للمحترفين والوكالات</span>
-            <h3 className="text-xl font-bold mt-2">LisanIQ Pro</h3>
-            <p className="text-slate-400 text-xs mt-1">تحليلات غير محدودة وميزات متقدمة مخصصة لنمو سريع.</p>
-            <div className="my-6">
-              <span className="text-4xl font-black text-white">$49</span>
-              <span className="text-slate-400 text-sm"> / شهرياً</span>
+        <div className="space-y-3 max-w-3xl mx-auto">
+          {faqs.map((faq, idx) => (
+            <div key={idx} className="bg-white border border-slate-100 rounded-xl overflow-hidden shadow-2xs">
+              <button
+                onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
+                className="w-full p-4 text-right flex justify-between items-center font-bold text-sm text-slate-800 hover:bg-slate-50 transition-colors"
+              >
+                <span>{faq.question}</span>
+                {activeFaq === idx ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+              </button>
+              {activeFaq === idx && (
+                <div className="p-4 pt-0 text-xs text-slate-500 leading-relaxed bg-slate-50 border-t border-slate-50">
+                  {faq.answer}
+                </div>
+              )}
             </div>
-            <ul className="space-y-3 text-sm text-slate-300 border-t border-slate-800 pt-4">
-              <li className="text-emerald-400">✓ رفع تقارير وملفات CSV غير محدودة</li>
-              <li className="text-emerald-400">✓ تحليل حتى 500,000 صف لكل تقرير</li>
-              <li>✓ تصدير التقارير والتوصيات إلى ملفات PDF</li>
-              <li>✓ دعم فني ذو أولوية على مدار الساعة</li>
-            </ul>
-          </div>
-          <button
-            onClick={() => handleUpgrade('pro')}
-            disabled={isLoading}
-            className="w-full mt-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg shadow-indigo-600/30 disabled:opacity-50"
-          >
-            {isLoading ? 'جاري تحضير بوابة الدفع...' : '🚀 قم بالترقية إلى الإصدار الإحترافي'}
-          </button>
+          ))}
         </div>
       </div>
     </div>
