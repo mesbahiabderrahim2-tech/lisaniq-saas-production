@@ -45,39 +45,42 @@ export default function PricingPlans() {
   return (
     <div className="mt-16 text-right" dir="rtl">
       <div className="text-center mb-10">
-        <h2 className="text-3xl font-black text-slate-100">🚀 خطط الأسعار والترقية الاحترافية</h2>
-        <p className="text-slate-400 mt-2 text-sm">اختر الخطة المناسبة لحجم أعمالك وابدأ في مضاعفة أرباح حملاتك الآن.</p>
+        <h2 className="text-3xl font-black" style={{ color: 'var(--platinum)' }}>🚀 خطط الأسعار والترقية الاحترافية</h2>
+        <p className="mt-2 text-sm" style={{ color: 'var(--slate)' }}>اختر الخطة المناسبة لحجم أعمالك وابدأ في مضاعفة أرباح حملاتك الآن.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
         
-        {/* ─── الخطة المجانية (خلفية بيضاء - تم تصحيح ألوان النصوص لتصبح داكنة وواضحة جداً) ─── */}
-        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between text-slate-900">
+        {/* ─── الخطة المجانية (تعديل كامل لتصبح داكنة واحترافية والكلمات واضحة 100%) ─── */}
+        <div 
+          className="p-8 rounded-3xl border flex flex-col justify-between"
+          style={{ background: 'var(--surface-2)', borderColor: 'var(--line-1)' }}
+        >
           <div>
-            <span className="text-xs font-bold bg-slate-100 text-slate-800 px-3 py-1 rounded-full">الخطة الحالية</span>
-            <h3 className="text-xl font-bold text-slate-900 mt-2">الحساب المجاني (Free)</h3>
-            <p className="text-slate-700 text-xs mt-1 font-medium">لتجربة المنصة واستكشاف محرك القرارات الذكي.</p>
+            <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--silver)' }}>الخطة الحالية</span>
+            <h3 className="text-xl font-bold mt-2" style={{ color: 'var(--platinum)' }}>الحساب المجاني (Free)</h3>
+            <p className="text-xs mt-1 font-medium" style={{ color: 'var(--slate)' }}>لتجربة المنصة واستكشاف محرك القرارات الذكي.</p>
             
             <div className="my-6">
-              <span className="text-4xl font-black text-slate-900">$0</span>
-              <span className="text-slate-600 text-sm"> / شهرياً</span>
+              <span className="text-4xl font-black" style={{ color: 'var(--platinum)' }}>$0</span>
+              <span className="text-sm" style={{ color: 'var(--slate)' }}> / شهرياً</span>
             </div>
 
-            <ul className="space-y-3 text-sm text-slate-800 border-t border-slate-100 pt-4 font-medium">
+            <ul className="space-y-3 text-sm border-t pt-4 font-medium" style={{ borderColor: 'var(--line-1)', color: 'var(--silver)' }}>
               <li className="flex items-center gap-2">
-                <svg className="text-emerald-600 w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 shrink-0 text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
-                <span>شهرياً CSV رفع حتى 3 ملفات</span>
+                <span>رفع حتى 3 ملفات CSV شهرياً</span>
               </li>
               <li className="flex items-center gap-2">
-                <svg className="text-emerald-600 w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 shrink-0 text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
-                <span>تحليل حتى 5000 صف لكل تقرير</span>
+                <span>تحليل حتى 5,000 صف لكل تقرير</span>
               </li>
               <li className="flex items-center gap-2">
-                <svg className="text-emerald-600 w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 shrink-0 text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
                 <span>لوحة مؤشرات الأداء الأساسية</span>
@@ -85,51 +88,51 @@ export default function PricingPlans() {
             </ul>
           </div>
           
-          <button disabled className="w-full mt-8 bg-slate-100 text-slate-500 font-bold py-3 rounded-xl text-sm cursor-not-allowed">
+          <button disabled className="w-full mt-8 font-bold py-3 rounded-xl text-sm cursor-not-allowed opacity-60" style={{ background: 'var(--line-1)', color: 'var(--slate)' }}>
             خطتك النشطة حالياً
           </button>
         </div>
 
-        {/* ─── الخطة الاحترافية (خلفية داكنة - متناسقة مع ثيم لوحة التحكم وبنصوص واضحة) ─── */}
-        <div className="bg-slate-900 text-white p-8 rounded-3xl border-2 border-indigo-500 relative flex flex-col justify-between shadow-xl">
-          <div className="absolute top-0 left-0 bg-indigo-600 text-white text-xs font-black px-4 py-1.5 rounded-br-xl rounded-tl-sm animate-pulse">
+        {/* ─── الخطة الاحترافية (احترافية وثابتة) ─── */}
+        <div 
+          className="p-8 rounded-3xl border-2 relative flex flex-col justify-between shadow-xl"
+          style={{ background: 'var(--surface-2)', borderColor: 'var(--sapphire)' }}
+        >
+          <div 
+            className="absolute top-0 left-0 text-white text-xs font-black px-4 py-1.5 rounded-br-xl rounded-tl-sm animate-pulse"
+            style={{ background: 'var(--sapphire)' }}
+          >
             🔥 الأكثر طلباً وتوفيراً
           </div>
           
           <div>
-            <span className="text-xs font-bold bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full">للمحترفين والوكالات</span>
-            <h3 className="text-xl font-bold text-white mt-2">LisanIQ Pro</h3>
-            <p className="text-slate-300 text-xs mt-1">تحليلات غير محدودة وميزات متقدمة مخصصة لنمو سريع جداً.</p>
+            <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ background: 'rgba(61,111,232,0.1)', color: '#9fc4f5' }}>للمحترفين والوكالات</span>
+            <h3 className="text-xl font-bold mt-2" style={{ color: 'var(--platinum)' }}>LisanIQ Pro</h3>
+            <p className="text-xs mt-1" style={{ color: 'var(--slate)' }}>تحليلات غير محدودة وميزات متقدمة مخصصة لنمو سريع جداً.</p>
             
             <div className="my-6">
-              <span className="text-4xl font-black text-white">$49</span>
-              <span className="text-slate-400 text-sm"> / شهرياً</span>
+              <span className="text-4xl font-black" style={{ color: 'var(--platinum)' }}>$49</span>
+              <span className="text-sm" style={{ color: 'var(--slate)' }}> / شهرياً</span>
             </div>
 
-            <ul className="space-y-3 text-sm text-slate-100 border-t border-slate-800 pt-4">
+            <ul className="space-y-3 text-sm border-t pt-4" style={{ borderColor: 'var(--line-1)', color: 'var(--silver)' }}>
               <li className="flex items-center gap-2">
-                <svg className="text-indigo-400 w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 shrink-0 text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
                 <span>تحميل ملفات CSV غير محدود والتحليل الفوري</span>
               </li>
               <li className="flex items-center gap-2">
-                <svg className="text-indigo-400 w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 shrink-0 text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
                 <span>تحليل حتى 500,000 صف لكل مجموعة بيانات</span>
               </li>
               <li className="flex items-center gap-2">
-                <svg className="text-indigo-400 w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 shrink-0 text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
                 <span>تصدير التقارير والتوصيات إلى ملفات PDF</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <svg className="text-indigo-400 w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>دعم فني ذو أولوية على مدار الساعة</span>
               </li>
             </ul>
           </div>
@@ -137,9 +140,10 @@ export default function PricingPlans() {
           <button 
             onClick={() => handleUpgrade('pro')}
             disabled={isLoading}
-            className="w-full mt-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-md active:scale-[0.98]"
+            className="w-full mt-8 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-md active:scale-[0.98]"
+            style={{ background: 'var(--sapphire)' }}
           >
-            {isLoading ? '⏳ جاري تجهيز بوابة الدفع آمنة...' : '🚀 قم بالترقية إلى الإصدار الاحترافي'}
+            {isLoading ? '⏳ جاري تجهيز بوابة الدفع...' : '🚀 قم بالترقية إلى الإصدار الاحترافي'}
           </button>
         </div>
 
