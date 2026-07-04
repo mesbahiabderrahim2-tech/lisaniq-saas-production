@@ -32,12 +32,12 @@ export function PageHeader({ title, subtitle, action }: PageHeaderProps) {
       <div>
         <h1
           className="font-display text-2xl lg:text-[28px] leading-tight mb-1"
-          style={{ color: 'var(--platinum)' }}
+          style={{ color: 'var(--platinum, #f8fafc)' }}
         >
           {title}
         </h1>
         {subtitle && (
-          <p className="text-sm" style={{ color: 'var(--silver)' }}>
+          <p className="text-sm" style={{ color: 'var(--silver, #cbd5e1)' }}>
             {subtitle}
           </p>
         )}
@@ -59,7 +59,7 @@ export function SectionLabel({ num, label }: SectionLabelProps) {
       <span
         className="font-data text-[10px] px-2 py-1 rounded"
         style={{
-          color:      'var(--sapphire)',
+          color:      'var(--sapphire, #3d6fe8)',
           background: 'rgba(61,111,232,0.1)',
           border:     '1px solid rgba(61,111,232,0.2)',
           letterSpacing: '0.5px',
@@ -69,16 +69,16 @@ export function SectionLabel({ num, label }: SectionLabelProps) {
       </span>
       <span
         className="font-data text-[11px] font-semibold uppercase tracking-[2px]"
-        style={{ color: 'var(--slate)' }}
+        style={{ color: 'var(--slate, #94a3b8)' }}
       >
         {label}
       </span>
-      <div className="flex-1 h-px" style={{ background: 'var(--line-1)' }} />
+      <div className="flex-1 h-px" style={{ background: 'var(--line-1, #1e293b)' }} />
     </div>
   )
 }
 
-// ── Card wrapper (إصلاح تباين الخلفية الداكنة لمنع التحول للون الأبيض) ──
+// ── Card wrapper (تم التأمين بلون داكن صريح في حال انهيار المتغيرات) ──
 interface CardProps {
   children?: React.ReactNode
   className?: string
@@ -88,15 +88,15 @@ interface CardProps {
 export function Card({ children, className = '', padding = 'p-6' }: CardProps) {
   return (
     <div
-      className={`rounded-xl ${padding} ${className}`}
-      style={{ background: 'var(--surface-2)', border: '1px solid var(--line-1)' }}
+      className={`rounded-xl border border-slate-800 bg-slate-900/90 backdrop-blur-sm ${padding} ${className}`}
+      style={{ background: 'var(--surface-2, #0f172a)', borderColor: 'var(--line-1, #1e293b)' }}
     >
       {children}
     </div>
   )
 }
 
-// ── Stat card ──────────────────────────────────────────
+// ── Stat card (تم فرض اللون الداكن الصريح لإنهاء مشكلة البياض في لوحة التحكم نهائياً) ──
 interface StatCardProps {
   label:   string
   value:   string
@@ -105,11 +105,12 @@ interface StatCardProps {
   accent?: string   // top-bar gradient
 }
 
-export function StatCard({ label, value, note, color = 'var(--platinum)', accent }: StatCardProps) {
+export function StatCard({ label, value, note, color = 'var(--platinum, #f8fafc)', accent }: StatCardProps) {
   return (
     <div
-      className="rounded-xl p-5 relative overflow-hidden"
-      style={{ background: 'var(--surface-2)', border: '1px solid var(--line-1)' }}
+      className="rounded-xl p-5 relative overflow-hidden border border-slate-800 bg-slate-900/90 backdrop-blur-sm shadow-lg text-right"
+      style={{ background: 'var(--surface-2, #0f172a)', borderColor: 'var(--line-1, #1e293b)' }}
+      dir="rtl"
     >
       {accent && (
         <div
@@ -118,19 +119,19 @@ export function StatCard({ label, value, note, color = 'var(--platinum)', accent
         />
       )}
       <div
-        className="font-data text-[9.5px] font-semibold uppercase tracking-[2px] mb-2"
-        style={{ color: 'var(--slate)' }}
+        className="font-data text-[10px] font-bold uppercase tracking-[1.5px] mb-2"
+        style={{ color: 'var(--slate, #94a3b8)' }}
       >
         {label}
       </div>
       <div
-        className="font-data text-[26px] font-bold leading-none mb-1"
-        style={{ color }}
+        className="font-data text-2xl font-black leading-none mb-1.5"
+        style={{ color: color === 'var(--platinum)' ? '#f8fafc' : color }}
       >
         {value}
       </div>
       {note && (
-        <div className="text-[11px]" style={{ color: 'var(--slate)' }}>
+        <div className="text-xs font-medium" style={{ color: 'var(--silver, #cbd5e1)' }}>
           {note}
         </div>
       )}
@@ -150,25 +151,25 @@ export function EmptyState({ icon, title, body, action }: EmptyStateProps) {
   return (
     <div
       className="rounded-xl border p-12 text-center"
-      style={{ background: 'var(--surface-2)', borderColor: 'var(--line-1)', borderStyle: 'dashed' }}
+      style={{ background: 'var(--surface-2, #0f172a)', borderColor: 'var(--line-1, #1e293b)', borderStyle: 'dashed' }}
     >
       <div
         className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4"
-        style={{ background: 'rgba(74,88,120,0.15)', border: '1px solid var(--line-2)' }}
+        style={{ background: 'rgba(74,88,120,0.15)', border: '1px solid var(--line-2, #334155)' }}
       >
         {icon}
       </div>
-      <p className="text-[14px] font-medium mb-1.5" style={{ color: 'var(--platinum)' }}>
+      <p className="text-[14px] font-medium mb-1.5" style={{ color: 'var(--platinum, #f8fafc)' }}>
         {title}
       </p>
-      <p className="text-[12.5px] mb-5" style={{ color: 'var(--slate)' }}>
+      <p className="text-[12.5px] mb-5" style={{ color: 'var(--slate, #94a3b8)' }}>
         {body}
       </p>
       {action && (
         <Link
           href={action.href}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-[13px] font-medium transition-colors"
-          style={{ background: 'var(--sapphire)', color: '#fff' }}
+          style={{ background: 'var(--sapphire, #3d6fe8)', color: '#fff' }}
         >
           {action.label}
         </Link>
