@@ -193,35 +193,41 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 text-right" dir="rtl">
-      <div className="mb-8 flex flex-col justify-between items-start md:flex-row md:items-center bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+    <div className="min-h-screen p-6 text-right" style={{ backgroundColor: '#0b0f19' }} dir="rtl">
+      
+      {/* الهيدر العلوي لوحة التحكم */}
+      <div className="mb-8 flex flex-col justify-between items-start md:flex-row md:items-center p-6 rounded-2xl border" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
         <div>
-          <span className="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100">
+          <span className="text-xs font-bold px-3 py-1 rounded-full border" style={{ backgroundColor: 'rgba(61,111,232,0.1)', color: '#9fc4f5', borderColor: 'rgba(61,111,232,0.2)' }}>
             📊 نظام إدارة سجلات العملاء المستدام
           </span>
-          <h1 className="text-2xl font-black text-slate-900 mt-2">LisanIQ - Dashboard</h1>
-          <p className="text-sm text-slate-500 mt-1">إدارة وتحليل ملفات الـ CSV واستخراج القرارات الإعلانية المنقذة فوراً.</p>
+          <h1 className="text-2xl font-black mt-2" style={{ color: '#f8fafc' }}>LisanIQ - Dashboard</h1>
+          <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>إدارة وتحليل ملفات الـ CSV واستخراج القرارات الإعلانية المنقذة فوراً.</p>
         </div>
       </div>
 
+      {/* صف التحكم واختيار وإضافة العملاء */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm md:col-span-2">
-          <h3 className="font-bold text-slate-800 mb-3">📍 اختر العميل المستهدف أو جرب البناء:</h3>
+        
+        {/* اختيار العميل ورفع الملف */}
+        <div className="p-6 rounded-2xl border" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
+          <h3 className="font-bold mb-3" style={{ color: '#cbd5e1' }}>📍 اختر العميل المستهدف أو جرب البناء:</h3>
           <div className="flex flex-col sm:flex-row gap-4 items-center">
             <select
               value={selectedClientId}
               onChange={(e) => setSelectedClientId(e.target.value)}
-              className="w-full sm:w-1/3 p-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-medium focus:outline-indigo-600"
+              className="w-full sm:w-1/3 p-3 rounded-xl border font-medium focus:outline-none"
+              style={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }}
             >
               {clients.length === 0 ? (
-                <option value="">جاري جلب قائمة العملاء...</option>
+                <option value="" style={{ color: '#94a3b8' }}>جاري جلب قائمة العملاء...</option>
               ) : (
-                clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)
+                clients.map(c => <option key={c.id} value={c.id} style={{ backgroundColor: '#0f172a', color: '#f8fafc' }}>{c.name}</option>)
               )}
             </select>
 
             <label className="w-full sm:w-1/3 cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl text-center shadow-sm transition-all duration-200">
-              {isUploading ? '... ⏳ جاري رفع تقرير الـ CSV' : '📁 ارفع تقرير الـ CSV للعميل'}
+              {isUploading ? '... ⏳ جاري الرفع' : '📁 ارفع تقرير CSV'}
               <input type="file" accept=".csv" className="hidden" onChange={handleFileUpload} disabled={isUploading} />
             </label>
 
@@ -230,26 +236,28 @@ export default function DashboardPage() {
               disabled={isSampleLoading}
               className="w-full sm:w-1/3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-center shadow-sm transition-all duration-200"
             >
-              {isSampleLoading ? '... جاري معالجة العينة التجريبية 🪄' : '✨ تجربة مثال جاهز'}
+              {isSampleLoading ? '... ⏳ جاري المعالجة' : '✨ تجربة مثال جاهز'}
             </button>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-          <h3 className="font-bold text-slate-800 mb-2">➕ إضافة حساب عميل جديد</h3>
+        {/* كرت إضافة العميل الجديد */}
+        <div className="p-6 rounded-2xl border" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
+          <h3 className="font-bold mb-2" style={{ color: '#cbd5e1' }}>➕ إضافة حساب عميل جديد</h3>
           <form onSubmit={handleCreateClient} className="space-y-3">
             <input
               type="text"
               placeholder="... اسم حساب الشركة أو العميل"
               value={newClientName}
               onChange={(e) => setNewClientName(e.target.value)}
-              className="w-full p-2.5 rounded-xl border border-slate-200 text-sm focus:outline-indigo-600"
+              className="w-full p-2.5 rounded-xl border text-sm focus:outline-none"
+              style={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#ffffff' }}
               required
             />
             <button
               type="submit"
               disabled={isCreatingClient}
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 rounded-xl text-xs transition-all duration-200"
+              className="w-full bg-slate-100 hover:bg-white text-slate-900 font-bold py-2 rounded-xl text-xs transition-all duration-200"
             >
               {isCreatingClient ? '... جاري الحفظ والتثبيت' : ' حفظ وإضافة العميل الجديد'}
             </button>
@@ -257,48 +265,58 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* إشعار العينة */}
       {isShowingSample && (
-        <div className="mb-6 p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold rounded-xl text-center">
+        <div className="mb-6 p-3 border text-xs font-bold rounded-xl text-center" style={{ backgroundColor: 'rgba(16,185,129,0.1)', borderColor: 'rgba(16,185,129,0.2)', color: '#34d399' }}>
           💡 أنت تشاهد الآن بيانات "مثال جاهز لمشروع تجاري" حقيقي عبر منصات فيسبوك وجوجل وسناب شات لاستعراض قوة محرك القرارات في 30 ثانية .
         </div>
       )}
 
+      {/* كروت الإحصائيات الأربعة الذكية - تم إصلاح بياضها نهائياً بفرض قيم داكنة صريحة وكلمات ناصعة الوضوح */}
       {stats.totalSpend > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-            <p className="text-xs font-bold text-slate-400">الإسراف المالي الحالي</p>
-            <p className="text-2xl font-black text-slate-900 mt-1">${stats.totalSpend.toLocaleString()}</p>
+          
+          <div className="p-6 rounded-2xl border shadow-lg text-right" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
+            <p className="text-xs font-bold" style={{ color: '#94a3b8' }}>الإسراف المالي الحالي</p>
+            <p className="text-2xl font-black mt-1" style={{ color: '#ffffff' }}>${stats.totalSpend.toLocaleString()}</p>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-slate-100 border-r-4 border-r-rose-500 shadow-sm">
-            <p className="text-xs font-bold text-rose-500">حملات نزيف الميزانية</p>
-            <p className="text-2xl font-black text-rose-600 mt-1">⚠️ {stats.criticalCount} توصيات حرجة</p>
+
+          <div className="p-5 rounded-2xl border border-r-4 shadow-lg text-right" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRightColor: '#ef4444' }}>
+            <p className="text-xs font-bold" style={{ color: '#f87171' }}>حملات نزيف الميزانية</p>
+            <p className="text-2xl font-black mt-1" style={{ color: '#ef4444' }}>⚠️ {stats.criticalCount} توصيات حرجة</p>
           </div>
-          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm bg-gradient-to-br from-emerald-50 to-white">
-            <p className="text-xs font-bold text-emerald-600">الوفورات المستردة المتوقعة</p>
-            <p className="text-2xl font-black text-emerald-700 mt-1"> دولار {stats.totalSavings.toLocaleString()}</p>
+
+          <div className="p-6 rounded-2xl border shadow-lg text-right bg-gradient-to-br from-slate-900 to-indigo-950/20" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
+            <p className="text-xs font-bold" style={{ color: '#34d399' }}>الوفورات المستردة المتوقعة</p>
+            <p className="text-2xl font-black mt-1" style={{ color: '#10b981' }}>{stats.totalSavings.toLocaleString()} دولار</p>
           </div>
+
         </div>
       )}
 
+      {/* مخرجات معالجة محرك القرارات الحالي */}
       <div className="space-y-4">
-        <h2 className="text-md font-bold text-slate-700 flex items-center gap-2">📋 مخرجات معالجة محرك القرارات الحالي :</h2>
+        <h2 className="text-md font-bold flex items-center gap-2" style={{ color: '#e2e8f0' }}>
+          📋 مخرجات معالجة محرك القرارات الحالي :
+        </h2>
+        
         {decisions.length === 0 ? (
-          <div className="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center text-slate-400 text-sm">
+          <div className="border-2 border-dashed rounded-2xl p-10 text-center text-sm" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#94a3b8' }}>
             اختر العميل المستهدف ثم ارفع ملف الـ CSV، أو اضغط على زر "تجربة مثال جاهز" لمعالجة البيانات فوراً.
           </div>
         ) : (
           decisions.map((decision, idx) => (
-            <div key={idx} className="p-5 bg-white rounded-xl shadow-sm border border-slate-100 border-r-4 border-r-slate-400">
+            <div key={idx} className="p-5 rounded-xl shadow-lg border border-r-4 text-right" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRightColor: '#64748b' }}>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-xs font-black bg-slate-100 text-slate-700 px-2 py-1 rounded">
+                <span className="text-xs font-black px-2 py-1 rounded" style={{ backgroundColor: '#1e293b', color: '#cbd5e1' }}>
                   {decision.platform.toUpperCase()} | {decision.campaignName}
                 </span>
                 {decision.potentialSavings > 0 && (
-                  <span className="text-xs font-bold text-rose-600">وفورات محتملة: ${decision.potentialSavings}</span>
+                  <span className="text-xs font-bold" style={{ color: '#f87171' }}>وفورات محتملة: ${decision.potentialSavings}</span>
                 )}
               </div>
-              <h4 className="text-md font-bold text-slate-900 mb-1">{decision.decisionTitle}</h4>
-              <p className="text-xs text-slate-500 mt-1">{decision.businessReason}</p>
+              <h4 className="text-md font-bold mb-1" style={{ color: '#ffffff' }}>{decision.decisionTitle}</h4>
+              <p className="text-xs mt-1" style={{ color: '#94a3b8' }}>{decision.businessReason}</p>
             </div>
           ))
         )}
