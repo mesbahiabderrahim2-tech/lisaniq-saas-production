@@ -85,11 +85,11 @@ export default function BillingPage() {
           subtitle="إدارة خطتك واشتراكك الحالي وتتبع المبيعات ومعدلات استهلاك موارد حسابك."
         />
 
-        {/* كرت حالة الاشتراك الحالي - إصلاح الزر البنفسجي وتمرير النص بشكل صريح */}
+        {/* كرت حالة الاشتراك الحالي - تم تأمين ظهور نصوص الزر البنفسجي بالكامل */}
         <Card className="mb-6">
           <p className="font-data text-[11px] font-bold uppercase tracking-[1.5px] mb-2" style={{ color: 'var(--slate)' }}>حالة الحساب الحالي</p>
-          <div className="flex items-start justify-between gap-6 flex-wrap">
-            <div>
+          <div className="flex items-center justify-between gap-6 flex-wrap md:flex-nowrap">
+            <div className="flex-1 min-w-[250px]">
               <h3 className="text-xl font-black" style={{ color: 'var(--platinum)' }}>
                 {isPro ? '🚀 LisanIQ Pro (الإصدار الاحترافي)' : 'الحساب الحالي: الخطة المجانية الأساسية'}
               </h3>
@@ -100,22 +100,30 @@ export default function BillingPage() {
               )}
             </div>
 
-            {/* تم حل الأزمة البرمجية هنا عبر إدراج نص تفاعلي كامل للزر البنفسجي والأزرار التابعة */}
-            <div className="shrink-0 flex items-center justify-end min-w-[180px]">
+            {/* تم تمرير النص بكافة الخصائص الممكنة (text, label, children) مع فرض كلاسات الأبعاد لمنع الانكماش */}
+            <div className="w-full md:w-auto flex justify-end min-w-[200px]">
               {isPro ? (
                 <StripeButton
                   text="⚙️ إدارة الاشتراك وتحديث بطاقة الدفع"
+                  label="⚙️ إدارة الاشتراك وتحديث بطاقة الدفع"
                   endpoint="/api/portal"
                   priceId=""
                   variant="muted"
-                />
+                  className="w-full md:w-auto px-6 py-3 block text-center text-sm font-bold rounded-xl whitespace-nowrap"
+                >
+                  ⚙️ إدارة الاشتراك وتحديث بطاقة الدفع
+                </StripeButton>
               ) : (
                 <StripeButton
-                  text="⚡ ترقية حسابي الآن"
+                  text="⚡ ترقية الحساب الآن"
+                  label="⚡ ترقية الحساب الآن"
                   endpoint="/api/checkout"
                   priceId={priceId}
                   variant="primary"
-                />
+                  className="w-full md:w-auto px-6 py-3 block text-center text-sm font-bold rounded-xl whitespace-nowrap text-white bg-indigo-600 hover:bg-indigo-700"
+                >
+                  ⚡ ترقية الحساب الآن
+                </StripeButton>
               )}
             </div>
           </div>
@@ -125,11 +133,11 @@ export default function BillingPage() {
         <Card className="mb-10">
           <p className="font-data text-[11px] font-bold uppercase tracking-[1.5px] mb-4" style={{ color: 'var(--slate)' }}>📊 حجم استهلاك موارد الحساب</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-5 rounded-xl border bg-opacity-20" style={{ background: 'var(--surface-1)', borderColor: 'var(--line-1)' }}>
+            <div className="p-5 rounded-xl border" style={{ background: 'var(--surface-1)', borderColor: 'var(--line-1)' }}>
               <div className="font-data text-3xl font-black mb-1" style={{ color: 'var(--platinum)' }}>{usage.datasets}</div>
               <div className="text-sm font-medium" style={{ color: 'var(--silver)' }}>مجموعات البيانات المرفوعة / {isPro ? 'لا محدود' : 'حد أقصى 3 ملفات'}</div>
             </div>
-            <div className="p-5 rounded-xl border bg-opacity-20" style={{ background: 'var(--surface-1)', borderColor: 'var(--line-1)' }}>
+            <div className="p-5 rounded-xl border" style={{ background: 'var(--surface-1)', borderColor: 'var(--line-1)' }}>
               <div className="font-data text-3xl font-black mb-1" style={{ color: 'var(--platinum)' }}>{usage.reports}</div>
               <div className="text-sm font-medium" style={{ color: 'var(--silver)' }}>التقارير المستخرجة / {isPro ? 'لا محدود' : 'حد أقصى 5 تقارير'}</div>
             </div>
