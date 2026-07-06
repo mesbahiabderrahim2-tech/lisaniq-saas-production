@@ -2,12 +2,13 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-const SUPPORTED_LANGUAGES = ['ar', 'en', 'fr'];
+const SUPPORTED_LANGUAGES = ['ar', 'en'];
 const DATE_FORMATS = ['YYYY/MM/DD', 'DD/MM/YYYY', 'MM/DD/YYYY'];
 
 export async function POST(req: Request) {
   const cookieStore = await cookies();
   
+  // إنشاء عميل Supabase SSR الحديث المتوافق مع Next.js 15 و Vercel
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -20,16 +21,17 @@ export async function POST(req: Request) {
               cookieStore.set(name, value, options)
             );
           } catch {
-            // تجاهل أخطاء الـ Server Components
+            // تجاهل الأخطاء أثناء الـ Server Rendering
           }
         },
       },
     }
   );
   
+  // حزام الأمان: التحقق من جلسة المستخدم الشخصية
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'عذراً، انتهت الجلسة. يرجى إعادة تسجيل الدخول.' }, { status: 401 });
   }
 
   const userId = session.user.id;
@@ -38,14 +40,18 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { type, profileData, orgData } = body;
 
+    // 👤 معالجة تحديث بيانات الحساب الشخصي والتفضيلات
     if (type === 'profile') {
       const { fullName, language, timezone, dateFormat } = profileData;
 
       if (!fullName || fullName.trim().length < 3) {
-        return NextResponse.json({ error: 'الاسم غير صالح' }, { status: 400 });
+        return NextResponse.json({ error: 'الاسم الكامل يجب أن يتكون من 3 أحرف على الأقل.' }, { status: 400 });
+      }
+      if (!SUPPORTED_LANGUAGES.includes(language)) {
+        return NextResponse.json({ error: 'اللغة المحددة غير مدعومة.' }, { status: 400 });
       }
 
-      const { error: profileError } = await supabase
+      const { error: dbError } = await supabase
         .from('users')
         .upsert({
           id: userId,
@@ -56,16 +62,17 @@ export async function POST(req: Request) {
           updated_at: new Date().toISOString()
         }, { onConflict: 'id' });
 
-      if (profileError) throw profileError;
+      if (dbError) throw dbError;
 
-      return NextResponse.json({ success: true, message: 'تم التحديث بنجاح 🌍' });
+      return NextResponse.json({ success: true, message: 'تم حفظ تفضيلات الحساب بنجاح ✨' });
     }
 
+    // 🏢 معالجة تحديث بيانات المؤسسة (Workspace)
     if (type === 'organization') {
       const { name, website, description } = orgData;
 
       if (!name || name.trim().length < 2) {
-        return NextResponse.json({ error: 'اسم المؤسسة مطلوب' }, { status: 400 });
+        return NextResponse.json({ error: 'اسم المؤسسة حقل مطلوب.' }, { status: 400 });
       }
 
       const { data: userRow } = await supabase
@@ -77,44 +84,45 @@ export async function POST(req: Request) {
       let orgId = userRow?.organization_id;
 
       if (!orgId) {
-        const { data: newOrg, error: createOrgError } = await supabase
+        const { data: newOrg, error: createError } = await supabase
           .from('organizations')
           .insert({
             name: name.trim(),
-            website: website ? website.trim() : null,
-            description: description ? description.trim() : null
+            website: website || null,
+            description: description || null
           })
           .select('id')
           .single();
 
-        if (createOrgError) throw createOrgError;
+        if (createError) throw createError;
         orgId = newOrg.id;
 
-        await supabase
-          .from('users')
-          .update({ organization_id: orgId })
-          .eq('id', userId);
-
+        await supabase.from('users').update({ organization_id: orgId }).eq('id', userId);
       } else {
-        const { error: updateOrgError } = await supabase
+        const { error: updateError } = await supabase
           .from('organizations')
           .update({
             name: name.trim(),
-            website: website ? website.trim() : null,
-            description: description ? description.trim() : null,
+            website: website || null,
+            description: description || null,
             updated_at: new Date().toISOString()
           })
           .eq('id', orgId);
 
-        if (updateOrgError) throw updateOrgError;
+        if (updateError) throw updateError;
       }
 
-      return NextResponse.json({ success: true, message: 'تمت المزامنة بنجاح 🏢' });
+      return NextResponse.json({ success: true, message: 'تم تحديث بيانات المؤسسة بنجاح 🏢' });
     }
 
-    return NextResponse.json({ error: 'طلب غير معروف' }, { status: 400 });
+    return NextResponse.json({ error: 'نوع الطلب غير صالح.' }, { status: 400 });
 
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // إرسال الخطأ الحقيقي للـ Logs الخلفية لحماية أمن البيانات وعدم إظهاره للعميل
+    console.error('[SaaS Settings API Error Logging]:', error.message);
+    return NextResponse.json(
+      { error: 'حدث خطأ داخلي أثناء معالجة البيانات، تم تسجيل المشكلة وجاري فحصها.' }, 
+      { status: 500 }
+    );
   }
 }
