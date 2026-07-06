@@ -1,90 +1,120 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+const SUPPORTED_LANGUAGES = ['ar', 'en', 'fr'];
+const DATE_FORMATS = ['YYYY/MM/DD', 'DD/MM/YYYY', 'MM/DD/YYYY'];
+
 export async function POST(req: Request) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const cookieStore = await cookies();
   
-  // 1. التحقق من الجلسة والأمان وهل المستخدم مسجل دخول؟
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll(); },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // تجاهل أخطاء الـ Server Components
+          }
+        },
+      },
+    }
+  );
+  
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
-    return NextResponse.json({ error: 'غير مصرح لك بالدخول' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  const userId = session.user.id;
 
   try {
     const body = await req.json();
     const { type, profileData, orgData } = body;
 
-    // 2. معالجة تحديث البيانات الشخصية والتفضيلات لجدول users العام
     if (type === 'profile') {
-      const { error } = await supabase
+      const { fullName, language, timezone, dateFormat } = profileData;
+
+      if (!fullName || fullName.trim().length < 3) {
+        return NextResponse.json({ error: 'الاسم غير صالح' }, { status: 400 });
+      }
+
+      const { error: profileError } = await supabase
         .from('users')
         .upsert({
-          id: session.user.id, // ربط تلقائي بمعرف المستخدم الفريد
-          full_name: profileData.fullName,
-          language: profileData.language,
-          timezone: profileData.timezone,
-          date_format: profileData.dateFormat,
+          id: userId,
+          full_name: fullName.trim(),
+          language,
+          timezone,
+          date_format: dateFormat,
           updated_at: new Date().toISOString()
-        });
+        }, { onConflict: 'id' });
 
-      if (error) throw error;
-      return NextResponse.json({ success: true, message: 'تم حفظ البيانات الشخصية والتفضيلات بنجاح' });
+      if (profileError) throw profileError;
+
+      return NextResponse.json({ success: true, message: 'تم التحديث بنجاح 🌍' });
     }
 
-    // 3. معالجة تحديث بيانات المؤسسة والشركة
     if (type === 'organization') {
-      // جلب معرف المؤسسة المرتبط بالمستخدم الحالي أولاً
+      const { name, website, description } = orgData;
+
+      if (!name || name.trim().length < 2) {
+        return NextResponse.json({ error: 'اسم المؤسسة مطلوب' }, { status: 400 });
+      }
+
       const { data: userRow } = await supabase
         .from('users')
         .select('organization_id')
-        .eq('id', session.user.id)
-        .single();
+        .eq('id', userId)
+        .maybeSingle();
 
       let orgId = userRow?.organization_id;
 
-      // إذا لم يكن لدى المستخدم مؤسسة سابقة، ننشئ له واحدة جديدة فوراً
       if (!orgId) {
-        const { data: newOrg, error: createError } = await supabase
+        const { data: newOrg, error: createOrgError } = await supabase
           .from('organizations')
           .insert({
-            name: orgData.name,
-            website: orgData.website,
-            description: orgData.description
+            name: name.trim(),
+            website: website ? website.trim() : null,
+            description: description ? description.trim() : null
           })
           .select('id')
           .single();
 
-        if (createError) throw createError;
+        if (createOrgError) throw createOrgError;
         orgId = newOrg.id;
 
-        // نربط المستخدم بالمؤسسة الجديدة التي أنشأناها
         await supabase
           .from('users')
           .update({ organization_id: orgId })
-          .eq('id', session.user.id);
+          .eq('id', userId);
+
       } else {
-        // إذا كانت المؤسسة موجودة بالفعل، نقوم بتحديث بياناتها فقط
-        const { error: updateError } = await supabase
+        const { error: updateOrgError } = await supabase
           .from('organizations')
           .update({
-            name: orgData.name,
-            website: orgData.website,
-            description: orgData.description,
+            name: name.trim(),
+            website: website ? website.trim() : null,
+            description: description ? description.trim() : null,
             updated_at: new Date().toISOString()
           })
           .eq('id', orgId);
 
-        if (updateError) throw updateError;
+        if (updateOrgError) throw updateOrgError;
       }
 
-      return NextResponse.json({ success: true, message: 'تم حفظ بيانات المؤسسة بنجاح' });
+      return NextResponse.json({ success: true, message: 'تمت المزامنة بنجاح 🏢' });
     }
 
-    return NextResponse.json({ error: 'نوع الطلب غير مدعوم' }, { status: 400 });
+    return NextResponse.json({ error: 'طلب غير معروف' }, { status: 400 });
 
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
