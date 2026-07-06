@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 const Icons = {
   account: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
   org: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0V11m0 5H9m5-5h2m-2 5h2v-4a1 1 0 00-1-1h-1z" /></svg>,
-  security: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></</svg>,
+  security: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>,
   billing: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>,
   globe: () => <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>,
   time: () => <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
@@ -22,7 +22,7 @@ export default function SettingsPage() {
   const [message, setMessage] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // 1. قسم الحساب الشخصي (استخراج حقول التفضيلات)
+  // 1. قسم الحساب الشخصي (تفضيلات الهوية والموقع)
   const [profile, setProfile] = useState({
     fullName: 'عبد الرحيم مصباحي',
     email: 'contact@lisaniq.com',
@@ -31,7 +31,7 @@ export default function SettingsPage() {
     dateFormat: 'YYYY/MM/DD'
   });
 
-  // 2. قسم المؤسسة المطور (بيانات تشغيلية دون حقول زائدة)
+  // 2. قسم المؤسسة المطور (البيانات التشغيلية لمساحة العمل)
   const [org, setOrg] = useState({
     name: 'مؤسسة ذكاء التسويق الرقمي',
     website: 'https://lisaniq.com',
@@ -62,7 +62,7 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
-    // محاكاة جلب البيانات الأصلية من الـ Client Session لتفعيل الـ UX Skeleton Loader
+    // محاكاة جلب البيانات الأصلية لتفعيل الـ Skeleton Loader البصري
     const timer = setTimeout(() => setPageLoading(false), 500);
     return () => clearTimeout(timer);
   }, []);
@@ -112,7 +112,6 @@ export default function SettingsPage() {
       return;
     }
     setLoading(true); setMessage(''); setErrorMsg('');
-    // التنفيذ المباشر عبر الهوية المشفرة لـ Supabase Auth
     setTimeout(() => {
       setLoading(false);
       setMessage('تم تحديث كلمة المرور وحماية الجلسة الحالية بنجاح 🔒');
@@ -139,7 +138,7 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-[#0B0F19] text-gray-100 p-4 md:p-8 font-sans antialiased selection:bg-indigo-500/30" dir="rtl">
       <div className="max-w-5xl mx-auto">
         
-        {/* 2) الهيدر الرئيسي المحسن (Enterprise-Grade Header) */}
+        {/* الهيدر الرئيسي المحسن والمطابق لمعايير المنتجات العالمية */}
         <div className="flex items-center gap-3.5 mb-6 md:mb-8 border-b border-gray-800 pb-5">
           <div className="p-3 bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 rounded-xl shadow-inner">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -150,11 +149,11 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* تجميعة التنبيهات الموقعية (Toasts / Notifications Ecosystem) */}
+        {/* تنبيهات النجاح والفشل الموقعية */}
         {message && <div className="mb-5 p-3.5 bg-emerald-950/30 border border-emerald-500/20 text-emerald-400 rounded-xl text-xs md:text-sm font-medium flex items-center gap-2 animate-fadeIn"><span>✅</span> {message}</div>}
         {errorMsg && <div className="mb-5 p-3.5 bg-red-950/30 border border-red-500/20 text-red-400 rounded-xl text-xs md:text-sm font-medium flex items-center gap-2 animate-fadeIn"><span>⚠️</span> {errorMsg}</div>}
 
-        {/* 1) معالجة التبويبات المتجاوبة للهواتف (Responsive No-Overflow Navigation) */}
+        {/* التنقل الذكي والتبويبات المقسمة المناسبة لشاشات الهاتف المتجاوبة */}
         <div className="flex flex-col md:flex-row gap-5 md:gap-8 items-start">
           
           <div className="w-full md:w-60 flex md:flex-col overflow-x-auto md:overflow-visible border-b md:border-b-0 border-gray-800 md:space-y-1 pb-2 md:pb-0 scrollbar-none snap-x">
@@ -172,10 +171,10 @@ export default function SettingsPage() {
             </button>
           </div>
 
-          {/* مساحة عرض المحتوى والمكونات النشطة */}
+          {/* الحاوية الرئيسية للمحتوى */}
           <div className="flex-1 w-full bg-[#111827] border border-gray-800/80 rounded-2xl p-5 md:p-6 shadow-2xl relative overflow-hidden">
             
-            {/* 3) قسم الحساب الشخصي وتفضيلات التنسيق الرقمي */}
+            {/* قسم الحساب الشخصي وتفضيلات التقارير */}
             {activeTab === 'account' && (
               <form onSubmit={handleSaveProfile} className="space-y-5">
                 <div>
@@ -224,7 +223,7 @@ export default function SettingsPage() {
               </form>
             )}
 
-            {/* 4/ تحسين قسم المؤسسة (Operational Multi-Tenant Showcase) */}
+            {/* قسم مساحة عمل المؤسسة والبيانات التشغيلية المستخرجة */}
             {activeTab === 'org' && (
               <form onSubmit={handleSaveOrg} className="space-y-5">
                 <div>
@@ -232,7 +231,7 @@ export default function SettingsPage() {
                   <p className="text-xs text-gray-400 mt-0.5">إدارة تفاصيل مساحة العمل المشتركة للشركة ونطاقات التحليل الموثوقة.</p>
                 </div>
 
-                {/* كروت الحالة والملخص البصري الاحترافي للمؤسسة */}
+                {/* كروت ذكية لعرض ملخص البنية والمؤشرات الحالية للمؤسسة */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-1">
                   <div className="bg-[#0B0F19] border border-gray-800 p-3 rounded-xl">
                     <span className="block text-[10px] text-gray-400 font-semibold">عدد العملاء الحاليين</span>
@@ -269,7 +268,7 @@ export default function SettingsPage() {
               </form>
             )}
 
-            {/* 5) تحسين قسم الأمان (Enterprise Security Center) */}
+            {/* مركز الأمان لمراقبة الجلسات وإدارة كلمات المرور */}
             {activeTab === 'security' && (
               <div className="space-y-6">
                 <div>
@@ -277,7 +276,7 @@ export default function SettingsPage() {
                   <p className="text-xs text-gray-400 mt-0.5">مراقبة سلامة الدخول الحالي، وحماية حسابك عبر تشفير الهوية الرسمي التابع لـ Supabase Guard.</p>
                 </div>
 
-                {/* كرت حالة الأمان والمؤشرات البصرية */}
+                {/* كرت بصرى ذو مؤشرات أمان واضحة */}
                 <div className="bg-[#0B0F19] border border-gray-800/80 rounded-xl p-4 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <Icons.shieldCheck />
@@ -289,7 +288,7 @@ export default function SettingsPage() {
                   <span className="text-[10px] font-bold bg-emerald-950/60 border border-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-md">مستقر وجيد</span>
                 </div>
 
-                {/* سجل الدخول النشط ومراقبة الأجهزة */}
+                {/* سجل البيانات التشغيلية الفعالة للدخول الحالي */}
                 <div className="border border-gray-800 bg-gray-950/20 rounded-xl p-3.5 space-y-2 text-xs">
                   <div className="flex justify-between border-b border-gray-800/50 pb-2 text-[11px]">
                     <span className="text-gray-400">الجهاز الحالي والمتصفح:</span>
@@ -305,7 +304,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                {/* نموذج تغيير كلمة المرور المدمج */}
+                {/* فورم إدارة الأمان وتعديل كلمة المرور */}
                 <form onSubmit={handleUpdatePassword} className="space-y-4 border-t border-gray-800 pt-5">
                   <h4 className="text-xs font-bold text-white uppercase tracking-wider">تحديث تفاصيل كلمة المرور الموثقة</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -323,14 +322,14 @@ export default function SettingsPage() {
                     </div>
                   </div>
                   <div className="flex justify-between items-center pt-2 gap-4">
-                    <span className="text-[10px] text-gray-500">ينصح باختيار كلمة مرور تحتوي على أرقام ورموز خاصة.</span>
+                    <span className="text-[10px] text-gray-500">ينصح باختيار كلمة مرور تحتوي على أرقام ورموز خاصة لحماية الحساب.</span>
                     <button type="submit" disabled={loading} className="bg-gray-900 border border-gray-800 hover:bg-gray-800 text-gray-300 font-semibold text-xs px-4 py-2 rounded-xl transition-all whitespace-nowrap">{loading ? 'جاري التحديث...' : 'تحديث كلمة السر'}</button>
                   </div>
                 </form>
               </div>
             )}
 
-            {/* 6) تحسين قسم الاشتراك (Stripe Enterprise Billing Mirror) */}
+            {/* قسم إدارة الفوترة وحدود الاستهلاك الفعلي للملفات */}
             {activeTab === 'billing' && (
               <div className="space-y-5">
                 <div>
@@ -338,7 +337,7 @@ export default function SettingsPage() {
                   <p className="text-xs text-gray-400 mt-0.5">مراقبة الحصص الاستهلاكية لملفات الـ CSV المرفوعة لحملاتك وإدارة بوابة دفع العميل المتصلة بـ Stripe.</p>
                 </div>
 
-                {/* لوحة عرض حالة الاشتراك والفوترة */}
+                {/* بطاقة تفاصيل باقة العميل ومستوى الدفع */}
                 <div className="bg-[#0B0F19] border border-gray-800 rounded-xl p-4 space-y-4">
                   <div className="flex justify-between items-start gap-4">
                     <div>
@@ -351,7 +350,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
 
-                  {/* شريط استهلاك وتدقيق مساحة الملفات المرفوعة وحساب نسبة الاستهلاك */}
+                  {/* الـ Progress Bar ونظام نسب الاستهلاك الفعلي للحملات */}
                   <div className="space-y-1.5 pt-1">
                     <div className="flex justify-between text-xs">
                       <span className="text-gray-400 font-medium">ملفات الـ CSV المستهلكة للتحليل الذكي</span>
@@ -362,14 +361,14 @@ export default function SettingsPage() {
                     </div>
                     <div className="flex justify-between text-[10px] text-gray-500 pt-0.5">
                       <span>معدل الاستهلاك الحالي: {Math.round((subscription.usedFiles / subscription.maxFiles) * 100)}%</span>
-                      <span>تاريخ الاستحقاق والتجديد: {subscription.renewalDate}</span>
+                      <span>تاريخ الاستحقاق والتجديد القادم: {subscription.renewalDate}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* زر نقل المستخدم إلى صفحة Stripe وعرض الفواتير الموثقة */}
+                {/* كرت سفلي توجيهي لبوابة العميل الحالية لـ Stripe */}
                 <div className="pt-3 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                  <p className="text-[11px] text-gray-400">يمكنك تعديل معلومات بطاقة الائتمان، تحميل الفواتير السابقة، أو إلغاء الاشتراك من لوحة التحكم المخصصة.</p>
+                  <p className="text-[11px] text-gray-400">يمكنك تعديل معلومات بطاقة الائتمان، تحميل الفواتير السابقة، أو إلغاء الاشتراك من لوحة التحكم المخصصة مسبقاً للفوترة.</p>
                   <button type="button" onClick={() => window.location.href = '/dashboard/billing'} className="w-full sm:w-auto bg-gray-900 border border-gray-800 text-gray-200 hover:bg-gray-800 font-bold text-xs px-4 py-2.5 rounded-xl transition-all whitespace-nowrap text-center">إدارة الفواتير عبر Stripe 💳</button>
                 </div>
               </div>
