@@ -2,31 +2,32 @@
 
 import React, { useState, useEffect } from 'react';
 
-// نظام الأيقونات الموحد عالي الدقة (Inline SVG System) لتحسين الهوية البصرية ومنع الأخطاء النحوية
+// نظام الأيقونات الموحد عالي الدقة (Premium Inline SVG Icons)
 const Icons = {
-  account: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
-  org: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0V11m0 5H9m5-5h2m-2 5h2v-4a1 1 0 00-1-1h-1z" /></svg>,
-  security: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>,
-  billing: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>,
-  globe: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>,
-  time: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-  shieldCheck: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>,
-  link: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5l-1.1 1.1" /></svg>,
-  calendar: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
-  users: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>,
-  file: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
-  info: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+  account: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
+  org: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0V11m0 5H9m5-5h2m-2 5h2v-4a1 1 0 00-1-1h-1z" /></svg>,
+  security: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>,
+  billing: () => <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>,
+  globe: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>,
+  time: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+  shieldCheck: () => <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>,
+  link: () => <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5l-1.1 1.1" /></svg>,
+  calendar: () => <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
+  users: () => <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>,
+  file: () => <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
+  device: () => <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
+  pulse: () => <svg className="w-3 h-3 text-emerald-400 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="5" /></circle></svg>,
+  card: () => <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
 };
 
 export default function SettingsPage() {
-  // 1) إعادة تسمية التبويبات إلى أسمائها الاحترافية الصارمة
   const [activeTab, setActiveTab] = useState<'account' | 'org' | 'security' | 'billing'>('account');
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // 3) بيانات قسم الحساب الحالية
+  // بيانات حساب المستخدم الشخصية والتفضيلات
   const [profile, setProfile] = useState({
     fullName: 'عبد الرحيم مصباحي',
     email: 'contact@lisaniq.com',
@@ -35,37 +36,37 @@ export default function SettingsPage() {
     dateFormat: 'YYYY/MM/DD'
   });
 
-  // 4) بيانات قسم المؤسسة مع الحقول التشغيلية دون تعديل في قاعدة البيانات
+  // بيانات المؤسسة ومساحة العمل
   const [org, setOrg] = useState({
     name: 'مؤسسة ذكاء التسويق الرقمي',
     website: 'https://lisaniq.com',
     description: 'منصة رائدة لتحليل الحملات الإعلانية وتوليد التوصيات التلقائية.',
-    associatedClients: 14,             // عدد العملاء الحاليين المستخرج من البيانات الموجودة
-    createdAt: '22 مارس 2025',          // تاريخ إنشاء المؤسسة
-    currentPlan: 'الباقة الاحترافية'      // الخطة الحالية للمؤسسة
+    associatedClients: 14,             
+    createdAt: '22 مارس 2025',          
+    currentPlan: 'الباقة الاحترافية Pro'      
   });
 
-  // 5) بيانات قسم الأمان (Security Center)
+  // مركز أمان الحساب والجلسات النشطة
   const [security, setSecurity] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
-    lastLogin: 'منذ ساعتين',             // آخر تسجيل دخول
-    emailUsed: 'contact@lisaniq.com',   // البريد المستخدم
-    securityStatus: 'جيدة',             // حالة الأمان
-    currentDevice: 'Chrome / Android',  // الجهاز الحالي
-    activeSessions: 1                   // عدد الجلسات النشطة
+    lastLogin: 'منذ ساعتين',             
+    emailUsed: 'contact@lisaniq.com',   
+    securityStatus: 'آمن ومستقر',             
+    currentDevice: 'Chrome / Android',  
+    activeSessions: 1                   
   });
 
-  // 6) بيانات قسم الاشتراك (Stripe Mirror)
+  // بيانات سقف استهلاك الباقة والفوترة
   const [subscription, setSubscription] = useState({
-    planName: 'الباقة الاحترافية (Pro)', // الخطة الحالية
-    status: 'نشط',                     // حالة الاشتراك
-    renewalDate: '1 أغسطس 2026',        // تاريخ التجديد القادم
-    usedFiles: 42,                     // عدد الملفات المستخدمة
-    maxFiles: 100,                     // الحد الأقصى للخطة
-    associatedClients: 14,             // العملاء الحاليون
-    paymentStatus: 'مدفوع'              // حالة الدفع
+    planName: 'الباقة الاحترافية (Pro Plan)', 
+    status: 'نشط بنجاح',                     
+    renewalDate: '1 أغسطس 2026',        
+    usedFiles: 42,                     
+    maxFiles: 100,                     
+    associatedClients: 14,             
+    paymentStatus: 'مؤمن عبر Stripe'              
   });
 
   useEffect(() => {
@@ -84,9 +85,9 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setMessage('تم حفظ الإعدادات بنجاح');
+      setMessage('تم حفظ الإعدادات وتحديث التفضيلات الشخصية بنجاح.');
     } catch (err: any) {
-      setErrorMsg(err.message || 'حدث خطأ أثناء الحفظ');
+      setErrorMsg(err.message || 'حدث خطأ غير متوقع أثناء حفظ البيانات.');
     } finally {
       setLoading(false);
     }
@@ -103,9 +104,9 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setMessage('تم تحديث بيانات المؤسسة بنجاح');
+      setMessage('تم حفظ بيانات ملف المؤسسة وتحديث مساحة العمل.');
     } catch (err: any) {
-      setErrorMsg(err.message || 'حدث خطأ أثناء الحفظ');
+      setErrorMsg(err.message || 'تعذر مزامنة بيانات الشركة حالياً.');
     } finally {
       setLoading(false);
     }
@@ -114,13 +115,13 @@ export default function SettingsPage() {
   const handleUpdatePassword = (e: React.FormEvent) => {
     e.preventDefault();
     if (security.newPassword !== security.confirmPassword) {
-      setErrorMsg('كلمات المرور الجديدة غير متطابقة');
+      setErrorMsg('تأكيد كلمة المرور الجديدة غير متطابق.');
       return;
     }
     setLoading(true); setMessage(''); setErrorMsg('');
     setTimeout(() => {
       setLoading(false);
-      setMessage('تم تغيير كلمة المرور بنجاح');
+      setMessage('تم تحديث تفاصيل كلمة المرور وتأمين الجلسة بنجاح.');
       setSecurity(prev => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
     }, 500);
   };
@@ -129,7 +130,7 @@ export default function SettingsPage() {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      setMessage('تم تسجيل الخروج من جميع الأجهزة بنجاح');
+      setMessage('تم إنهاء جميع الجلسات النشطة وتسجيل الخروج بنجاح.');
     }, 500);
   };
 
@@ -152,59 +153,64 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-[#0B0F19] text-gray-100 p-4 md:p-8 font-sans antialiased" dir="rtl">
       <div className="max-w-5xl mx-auto">
         
-        {/* 2) تحسين الهيدر الرئيسي (على مستوى Google Workspace و Notion) */}
+        {/* هيدر الصفحة الرئيسي المحسن بالكامل بمستوى الأنظمة العالمية */}
         <div className="flex items-center gap-4 mb-6 md:mb-8 border-b border-gray-800 pb-6">
-          <div className="p-3 bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 rounded-xl">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          <div className="p-3 bg-indigo-600/10 border border-indigo-500/10 text-indigo-400 rounded-xl">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
           </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-bold text-white">إعدادات المنصة</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-white tracking-tight">إعدادات المنصة</h1>
             <p className="text-xs md:text-sm text-gray-400 mt-1">إدارة الحساب، المؤسسة، الأمان، والاشتراك من مكان واحد.</p>
           </div>
         </div>
 
-        {/* إشعارات النظام الموقعية الثابتة */}
-        {message && <div className="mb-5 p-3.5 bg-emerald-950/30 border border-emerald-500/20 text-emerald-400 rounded-xl text-xs md:text-sm font-medium flex items-center gap-2"><span>✅</span> {message}</div>}
-        {errorMsg && <div className="mb-5 p-3.5 bg-red-950/30 border border-red-500/20 text-red-400 rounded-xl text-xs md:text-sm font-medium flex items-center gap-2"><span>⚠️</span> {errorMsg}</div>}
+        {/* مساحة عرض الإشعارات الموقعية النظيفة */}
+        {message && <div className="mb-5 p-3.5 bg-emerald-950/30 border border-emerald-500/15 text-emerald-400 rounded-xl text-xs md:text-sm font-medium flex items-center gap-2"><span>✅</span> {message}</div>}
+        {errorMsg && <div className="mb-5 p-3.5 bg-red-950/30 border border-red-500/15 text-red-400 rounded-xl text-xs md:text-sm font-medium flex items-center gap-2"><span>⚠️</span> {errorMsg}</div>}
 
-        {/* 8) لوحة التحكم والتبويبات المقسمة المناسبة لمنع الـ Overflow وتغطية تجربة الهاتف 100% */}
+        {/* الهيكل التوجيهي المتجاوب 100% بدون أي Broken Tabs أو عناصر متزاحمة */}
         <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
           
-          {/* 1) إعادة تسمية التبويبات بالأسماء والأيقونات الدقيقة المطلوبة */}
+          {/* شريط التبويبات الجانبي / الهاتف علوي بالتمرير الأفقي الآمن */}
           <div className="w-full md:w-60 flex md:flex-col overflow-x-auto md:overflow-visible border-b md:border-b-0 border-gray-800 md:space-y-1 pb-2 md:pb-0 scrollbar-none snap-x">
             <button type="button" onClick={() => { setActiveTab('account'); setMessage(''); setErrorMsg(''); }} className={`flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold rounded-xl transition-all whitespace-nowrap snap-center ${activeTab === 'account' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-900/50'}`}>
-              <Icons.account /> <span>👤 الحساب</span>
+              <Icons.account /> <span>الحساب</span>
             </button>
             <button type="button" onClick={() => { setActiveTab('org'); setMessage(''); setErrorMsg(''); }} className={`flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold rounded-xl transition-all whitespace-nowrap snap-center ${activeTab === 'org' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-900/50'}`}>
-              <Icons.org /> <span>🏢 المؤسسة</span>
+              <Icons.org /> <span>المؤسسة</span>
             </button>
             <button type="button" onClick={() => { setActiveTab('security'); setMessage(''); setErrorMsg(''); }} className={`flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold rounded-xl transition-all whitespace-nowrap snap-center ${activeTab === 'security' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-900/50'}`}>
-              <Icons.security /> <span>🔒 الأمان</span>
+              <Icons.security /> <span>الأمان</span>
             </button>
             <button type="button" onClick={() => { setActiveTab('billing'); setMessage(''); setErrorMsg(''); }} className={`flex items-center gap-2.5 px-4 py-2.5 text-sm font-semibold rounded-xl transition-all whitespace-nowrap snap-center ${activeTab === 'billing' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-900/50'}`}>
-              <Icons.billing /> <span>💳 الاشتراك</span>
+              <Icons.billing /> <span>الاشتراك</span>
             </button>
           </div>
 
-          {/* حاوية محتوى الإعدادات الرئيسية المحسنة */}
-          <div className="flex-1 w-full bg-[#111827] border border-gray-800 rounded-2xl p-5 md:p-6 shadow-xl overflow-hidden">
+          {/* لوحة عرض المحتوى والـ Content Containers */}
+          <div className="flex-1 w-full bg-[#111827] border border-gray-800/60 rounded-2xl p-5 md:p-6 shadow-xl overflow-hidden">
             
-            {/* 3) تحسين قسم الحساب (أيقونات مناسبة، تنظيم بصري، مسافات احترافية، Labels واضحة) */}
+            {/* ========================================================= */}
+            {/* 👤 قسم الحساب الشخصي (تحسين العرض والتنظيم والـ Labels) */}
+            {/* ========================================================= */}
             {activeTab === 'account' && (
               <form onSubmit={handleSaveProfile} className="space-y-6">
                 <div>
                   <h3 className="text-base font-bold text-white">بيانات الحساب الشخصي</h3>
-                  <p className="text-xs text-gray-400 mt-1">تحديث تفاصيل الهوية الشخصية وتفضيلات عرض تقارير المنصة.</p>
+                  <p className="text-xs text-gray-400 mt-1">تحديث تفاصيل الهوية الشخصية وتفضيلات عرض الحساب عبر النظام.</p>
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-400 mb-2">👤 الاسم الكامل</label>
+                    <label className="block text-xs font-semibold text-gray-400 mb-2">الاسم الكامل</label>
                     <input type="text" value={profile.fullName} onChange={(e) => setProfile({ ...profile, fullName: e.target.value })} className="w-full bg-[#0B0F19] border border-gray-800 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 transition-all" required />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-400 mb-2">📧 البريد الإلكتروني</label>
-                    <input type="email" value={profile.email} disabled className="w-full bg-gray-900/50 border border-gray-800/80 rounded-xl px-3.5 py-2.5 text-gray-500 text-sm cursor-not-allowed select-none" />
+                    <label className="block text-xs font-semibold text-gray-400 mb-2">البريد الإلكتروني الحالي</label>
+                    {/* البريد الإلكتروني معروض كـ Read-only text محمي وخارج الـ Input لمنع ثقل الواجهة بصرياً */}
+                    <div className="w-full bg-gray-950/20 border border-gray-800/80 rounded-xl px-3.5 py-3 text-gray-400 text-sm select-none">
+                      {profile.email}
+                    </div>
                   </div>
                 </div>
 
@@ -212,8 +218,8 @@ export default function SettingsPage() {
                   <div>
                     <label className="block text-xs font-semibold text-gray-400 mb-2 flex items-center gap-1.5"><Icons.globe /> لغة المنصة</label>
                     <select value={profile.language} onChange={(e) => setProfile({ ...profile, language: e.target.value })} className="w-full bg-[#0B0F19] border border-gray-800 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500 transition-all">
-                      <option value="ar">العربية</option>
-                      <option value="en">English</option>
+                      <option value="ar">العربية (RTL)</option>
+                      <option value="en">English (LTR)</option>
                     </select>
                   </div>
                   <div>
@@ -238,44 +244,58 @@ export default function SettingsPage() {
               </form>
             )}
 
-            {/* 4) تحسين قسم المؤسسة (عرض معلومات تشغيلية مفيدة وبطاقات الحالة الاحترافية Badges و Info Cards) */}
+            {/* ========================================================= */}
+            {/* 🏢 قسم المؤسسة (المتطلب: إخراج البيانات الثابتة وتحويلها إلى Premium Stats Cards) */}
+            {/* ========================================================= */}
             {activeTab === 'org' && (
               <form onSubmit={handleSaveOrg} className="space-y-6">
                 <div>
                   <h3 className="text-base font-bold text-white">بيانات المؤسسة ومساحة العمل</h3>
-                  <p className="text-xs text-gray-400 mt-1">تحديث وتدقيق المعلومات والبيانات التشغيلية الخاصة بنشاط شركتك.</p>
+                  <p className="text-xs text-gray-400 mt-1">إدارة تفاصيل مساحة العمل وتدقيق المؤشرات التشغيلية للمنظمة.</p>
                 </div>
 
-                {/* كروت المعلومات والـ Badges البصرية الاحترافية بدون تعديل الجداول */}
+                {/* استبدال الـ Inputs بكروت إحصائية (Stats Cards) متطورة بمظهر Stripe / Vercel */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="bg-[#0B0F19] border border-gray-800 p-4 rounded-xl flex flex-col justify-between">
-                    <span className="text-[11px] text-gray-400 font-semibold flex items-center gap-1"><Icons.users /> عدد العملاء الحاليين</span>
-                    <span className="text-base font-bold text-white mt-2">{org.associatedClients} عميل</span>
+                  {/* كرت: عدد العملاء الحاليين */}
+                  <div className="bg-[#0B0F19]/60 border border-gray-800 p-4 rounded-xl flex items-center justify-between">
+                    <div className="space-y-1">
+                      <span className="block text-[11px] text-gray-400 font-medium">عدد العملاء الحاليين</span>
+                      <span className="block text-xl font-bold text-white tracking-tight">{org.associatedClients} عميل</span>
+                    </div>
+                    <div className="text-gray-500"><Icons.users /></div>
                   </div>
-                  <div className="bg-[#0B0F19] border border-gray-800 p-4 rounded-xl flex flex-col justify-between">
-                    <span className="text-[11px] text-gray-400 font-semibold flex items-center gap-1"><Icons.calendar /> تاريخ إنشاء المؤسسة</span>
-                    <span className="text-xs font-bold text-gray-300 mt-2">{org.createdAt}</span>
+
+                  {/* كرت: تاريخ إنشاء المؤسسة */}
+                  <div className="bg-[#0B0F19]/60 border border-gray-800 p-4 rounded-xl flex items-center justify-between">
+                    <div className="space-y-1">
+                      <span className="block text-[11px] text-gray-400 font-medium">تاريخ إنشاء المؤسسة</span>
+                      <span className="block text-base font-bold text-gray-200 tracking-tight">{org.createdAt}</span>
+                    </div>
+                    <div className="text-gray-500"><Icons.calendar /></div>
                   </div>
-                  <div className="bg-[#0B0F19] border border-gray-800 p-4 rounded-xl flex flex-col justify-between">
-                    <span className="text-[11px] text-gray-400 font-semibold flex items-center gap-1"><Icons.info /> الخطة الحالية</span>
-                    <div className="mt-2">
-                      <span className="inline-block text-[11px] font-bold bg-indigo-950/60 border border-indigo-500/20 text-indigo-400 px-2.5 py-1 rounded-md">{org.currentPlan}</span>
+
+                  {/* كرت: الخطة الحالية للمؤسسة */}
+                  <div className="bg-[#0B0F19]/60 border border-gray-800 p-4 rounded-xl flex items-center justify-between col-span-1">
+                    <div className="space-y-1">
+                      <span className="block text-[11px] text-gray-400 font-medium">الخطة الحالية للمؤسسة</span>
+                      <span className="block text-sm font-bold text-indigo-400 flex items-center gap-1.5"><Icons.pulse /> {org.currentPlan}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                {/* الحقول التشغيلية القابلة للتعديل تظل داخل فورم منظم */}
+                <div className="space-y-4 pt-2">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-400 mb-2">🏢 اسم المؤسسة</label>
+                    <label className="block text-xs font-semibold text-gray-400 mb-2">اسم المؤسسة</label>
                     <input type="text" value={org.name} onChange={(e) => setOrg({ ...org, name: e.target.value })} className="w-full bg-[#0B0F19] border border-gray-800 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500 transition-all" required />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-400 mb-2 flex items-center gap-1.5"><Icons.link /> الموقع الإلكتروني</label>
+                    <label className="block text-xs font-semibold text-gray-400 mb-2 flex items-center gap-1.5"><Icons.link /> الموقع الإلكتروني الرسمي</label>
                     <input type="url" value={org.website} onChange={(e) => setOrg({ ...org, website: e.target.value })} className="w-full bg-[#0B0F19] border border-gray-800 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500 transition-all" placeholder="https://example.com" />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-400 mb-2">📋 وصف النشاط</label>
-                    <textarea rows={3} value={org.description} onChange={(e) => setOrg({ ...org, description: e.target.value })} className="w-full bg-[#0B0F19] border border-gray-800 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500 transition-all resize-none" />
+                    <label className="block text-xs font-semibold text-gray-400 mb-2">وصف النشاط التسويقي</label>
+                    <textarea rows={2} value={org.description} onChange={(e) => setOrg({ ...org, description: e.target.value })} className="w-full bg-[#0B0F19] border border-gray-800 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500 transition-all resize-none" />
                   </div>
                 </div>
 
@@ -285,65 +305,67 @@ export default function SettingsPage() {
               </form>
             )}
 
-            {/* 5) تحسين قسم الأمان وتحويله إلى Security Center متكامل متضمن المؤشرات المطلوبة وزر الخروج */}
+            {/* ========================================================= */}
+            {/* 🔒 قسم الأمان (المتطلب: تحويله إلى Security Center مع Premium Stats Cards وعناصر بصرية) */}
+            {/* ========================================================= */}
             {activeTab === 'security' && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-base font-bold text-white">مركز الأمان وحماية البيانات</h3>
-                  <p className="text-xs text-gray-400 mt-1">إدارة مؤشرات الحماية، مراقبة الجلسات المفتوحة وتحديث تفاصيل كلمة المرور الشخصية.</p>
+                  <h3 className="text-base font-bold text-white">مركز الأمان ومراقبة الوصول</h3>
+                  <p className="text-xs text-gray-400 mt-1">تتبع جدار الأمان لجلسات الدخول الحالية وإدارة تراخيص الهوية المشفرة.</p>
                 </div>
 
-                {/* مؤشرات أمان بصرية وحالة الأمان المطلوبة كأولوية وبطاقات المعلومات */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-[#0B0F19] border border-gray-800 rounded-xl p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <Icons.shieldCheck className="text-emerald-400" />
-                      <div>
-                        <span className="block text-xs font-bold text-gray-400">حالة الأمان</span>
-                        <span className="block text-xs text-gray-500 mt-0.5">مؤشر سلامة الحساب</span>
-                      </div>
+                {/* تحويل كافة حقول الدخول الثابتة المقروءة إلى Stats Cards فاخرة وخارج الـ Inputs كلياً */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* كرت: حالة الأمان */}
+                  <div className="bg-[#0B0F19]/60 border border-gray-800 p-4 rounded-xl flex items-center justify-between">
+                    <div className="space-y-1">
+                      <span className="block text-[11px] text-gray-400 font-medium">حالة أمان الحساب</span>
+                      <span className="block text-sm font-bold text-emerald-400 tracking-tight">{security.securityStatus}</span>
                     </div>
-                    <span className="text-xs font-bold bg-emerald-950/60 border border-emerald-500/20 text-emerald-400 px-3 py-1 rounded-md">حالة الأمان: {security.securityStatus}</span>
+                    <div><Icons.shieldCheck /></div>
                   </div>
 
-                  <div className="bg-[#0B0F19] border border-gray-800 rounded-xl p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <Icons.time className="text-indigo-400" />
-                      <div>
-                        <span className="block text-xs font-bold text-gray-400">آخر تسجيل دخول</span>
-                        <span className="block text-xs text-gray-500 mt-0.5">توقيت الوصول الأخير</span>
-                      </div>
+                  {/* كرت: آخر تسجيل دخول */}
+                  <div className="bg-[#0B0F19]/60 border border-gray-800 p-4 rounded-xl flex items-center justify-between">
+                    <div className="space-y-1">
+                      <span className="block text-[11px] text-gray-400 font-medium">آخر تسجيل دخول مؤكد</span>
+                      <span className="block text-sm font-bold text-gray-200 tracking-tight">{security.lastLogin}</span>
                     </div>
-                    <span className="text-xs font-medium text-gray-300">{security.lastLogin}</span>
+                    <div className="text-gray-500"><Icons.time /></div>
+                  </div>
+
+                  {/* كرت: عدد الجلسات النشطة */}
+                  <div className="bg-[#0B0F19]/60 border border-gray-800 p-4 rounded-xl flex items-center justify-between">
+                    <div className="space-y-1">
+                      <span className="block text-[11px] text-gray-400 font-medium">عدد الجلسات النشطة</span>
+                      <span className="block text-base font-bold text-indigo-400 tracking-tight">{security.activeSessions} جلسة فعالة</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* تفاصيل الجلسة الحالية والبريد المستخدم وعرض عدد الجلسات */}
-                <div className="border border-gray-800 bg-gray-900/20 rounded-xl p-4 space-y-3 text-xs">
-                  <div className="flex justify-between items-center border-b border-gray-800/60 pb-2.5">
-                    <span className="text-gray-400 font-medium">📧 البريد المستخدم للمصادقة:</span>
-                    <span className="text-gray-200 font-semibold">{security.emailUsed}</span>
+                {/* كرت حماية إضافي لعرض البريد والجهاز الحالي بدون استخدام حقول إدخال غامضة */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-gray-950/20 border border-gray-800/80 rounded-xl p-4 text-xs">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-gray-400 font-semibold">البريد المستخدم الحالي للمصادقة</span>
+                    <span className="text-sm font-bold text-white mt-1">{security.emailUsed}</span>
                   </div>
-                  <div className="flex justify-between items-center border-b border-gray-800/60 pb-2.5">
-                    <span className="text-gray-400 font-medium">💻 الجهاز الحالي والمتصفح:</span>
-                    <span className="text-gray-200 font-semibold">{security.currentDevice}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-400 font-medium">🛡️ عدد الجلسات النشطة:</span>
-                    <span className="text-indigo-400 font-bold">{security.activeSessions} جلسة فعالة</span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-gray-400 font-semibold">جهاز الوصول الحالي النشط</span>
+                    <span className="text-sm font-bold text-gray-300 mt-1 flex items-center gap-1.5"><Icons.device /> {security.currentDevice}</span>
                   </div>
                 </div>
 
-                {/* زر تسجيل الخروج من جميع الأجهزة المتاح */}
+                {/* زر إنهاء الجلسات الآمن المخصص */}
                 <div className="flex justify-start">
-                  <button type="button" onClick={handleLogoutAllDevices} disabled={loading} className="w-full sm:w-auto bg-red-950/20 border border-red-500/20 hover:bg-red-950/40 text-red-400 font-semibold text-xs px-4 py-2.5 rounded-xl transition-all">
-                    🚫 تسجيل الخروج من جميع الأجهزة
+                  <button type="button" onClick={handleLogoutAllDevices} disabled={loading} className="w-full sm:w-auto bg-red-950/20 border border-red-500/15 hover:bg-red-950/40 text-red-400 font-semibold text-xs px-4 py-2.5 rounded-xl transition-all">
+                    🚫 تسجيل الخروج من جميع الأجهزة الأخرى
                   </button>
                 </div>
 
-                {/* نموذج تغيير كلمة المرور الأصلي المدمج في نفس الصفحة */}
+                {/* فورم حماية الهوية وتغيير كلمة السر */}
                 <form onSubmit={handleUpdatePassword} className="space-y-4 border-t border-gray-800 pt-6">
-                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">تغيير كلمة المرور</h4>
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">تغيير كلمة المرور الشخصية</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
                       <label className="block text-[11px] font-semibold text-gray-400 mb-1.5">كلمة المرور الحالية</label>
@@ -359,67 +381,69 @@ export default function SettingsPage() {
                     </div>
                   </div>
                   <div className="flex justify-end pt-2">
-                    <button type="submit" disabled={loading} className="w-full sm:w-auto bg-gray-900 border border-gray-800 hover:bg-gray-800 text-gray-300 font-semibold text-xs px-4 py-2.5 rounded-xl transition-all">{loading ? 'جاري الحفظ...' : 'تغيير كلمة المرور'}</button>
+                    <button type="submit" disabled={loading} className="w-full sm:w-auto bg-gray-900 border border-gray-800 hover:bg-gray-800 text-gray-300 font-semibold text-xs px-4 py-2.5 rounded-xl transition-all">{loading ? 'جاري التعديل...' : 'تحديث كلمة السر'}</button>
                   </div>
                 </form>
               </div>
             )}
 
-            {/* 6) تحسين قسم الاشتراك ليطابق Stripe Customer Portal و Google Workspace Billing بالكامل */}
+            {/* ========================================================= */}
+            {/* 💳 قسم الاشتراك (المتطلب: Stripe Mirror & Usage Progress Bars & Stats Cards) */}
+            {/* ========================================================= */}
             {activeTab === 'billing' && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-base font-bold text-white">تفاصيل باقة الاشتراك والفوترة</h3>
-                  <p className="text-xs text-gray-400 mt-1">متابعة حصص استهلاك الملفات والتحقق من حالة بوابات الفواتير المتصلة بـ Stripe.</p>
+                  <h3 className="text-base font-bold text-white">تفاصيل خطة الاشتراك والفوترة</h3>
+                  <p className="text-xs text-gray-400 mt-1">مراقبة سقف استهلاك تقارير الـ CSV المرفوعة وإدارة بوابات الدفع الموثقة.</p>
                 </div>
 
-                {/* كروت الحالة والـ Stat Cards الفاخرة للاشتراك */}
+                {/* استبدال حقول المدخلات الثابتة كلياً بـ Premium SaaS Stat Cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="bg-[#0B0F19] border border-gray-800 p-3.5 rounded-xl">
-                    <span className="block text-[10px] text-gray-400 font-semibold">الخطة الحالية</span>
-                    <span className="block text-xs font-bold text-indigo-400 mt-1.5">{subscription.planName}</span>
+                  <div className="bg-[#0B0F19]/60 border border-gray-800 p-4 rounded-xl flex flex-col justify-between">
+                    <span className="text-[10px] text-gray-400 font-semibold">الخطة الحالية</span>
+                    <span className="text-xs font-bold text-white mt-2 tracking-tight">{subscription.planName}</span>
                   </div>
-                  <div className="bg-[#0B0F19] border border-gray-800 p-3.5 rounded-xl">
-                    <span className="block text-[10px] text-gray-400 font-semibold">حالة الاشتراك</span>
-                    <div className="mt-1.5">
+                  <div className="bg-[#0B0F19]/60 border border-gray-800 p-4 rounded-xl flex flex-col justify-between">
+                    <span className="text-[10px] text-gray-400 font-semibold">حالة الاشتراك</span>
+                    <div className="mt-2">
                       <span className="inline-block text-[10px] font-bold bg-emerald-950/60 border border-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded">{subscription.status}</span>
                     </div>
                   </div>
-                  <div className="bg-[#0B0F19] border border-gray-800 p-3.5 rounded-xl">
-                    <span className="block text-[10px] text-gray-400 font-semibold">حالة الدفع</span>
-                    <div className="mt-1.5">
-                      <span className="inline-block text-[10px] font-bold bg-gray-900 border border-gray-800 text-gray-300 px-2 py-0.5 rounded">{subscription.paymentStatus}</span>
+                  <div className="bg-[#0B0F19]/60 border border-gray-800 p-4 rounded-xl flex flex-col justify-between">
+                    <span className="text-[10px] text-gray-400 font-semibold">بوابة الدفع التلقائي</span>
+                    <div className="mt-2">
+                      <span className="inline-block text-[10px] font-bold bg-gray-900 border border-gray-800 text-indigo-400 px-2 py-0.5 rounded-md flex items-center gap-1"><Icons.card /> Stripe</span>
                     </div>
                   </div>
-                  <div className="bg-[#0B0F19] border border-gray-800 p-3.5 rounded-xl">
-                    <span className="block text-[10px] text-gray-400 font-semibold">العملاء الحاليون</span>
-                    <span className="block text-xs font-bold text-white mt-1.5">{subscription.associatedClients} عميل نشط</span>
+                  <div className="bg-[#0B0F19]/60 border border-gray-800 p-4 rounded-xl flex flex-col justify-between">
+                    <span className="text-[10px] text-gray-400 font-semibold">العملاء النشطين حالياً</span>
+                    <span className="text-xs font-bold text-gray-200 mt-2 tracking-tight">{subscription.associatedClients} عميل نشط</span>
                   </div>
                 </div>
 
-                {/* نظام Usage Progress Bars وبطاقات الاستهلاك والنسب المئوية والحدود الموثقة */}
-                <div className="bg-[#0B0F19] border border-gray-800 rounded-xl p-4 space-y-4">
+                {/* لوحة التحكم ومراقبة استهلاك ومقاييس ملفات الـ CSV وحساب نسبة الاستهلاك بدقة */}
+                <div className="bg-[#0B0F19]/60 border border-gray-800 rounded-xl p-4 sm:p-5 space-y-4">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-gray-400 font-semibold flex items-center gap-1.5"><Icons.file /> استهلاك الملفات المرفوعة</span>
-                    <span className="text-white font-bold">{subscription.usedFiles} <span className="text-gray-500 font-normal">من أصل</span> {subscription.maxFiles} ملف CSV</span>
+                    <span className="text-gray-400 font-semibold flex items-center gap-1.5"><Icons.file /> مقاييس استهلاك ملفات الـ CSV للحملات</span>
+                    <span className="text-white font-bold">{subscription.usedFiles} <span className="text-gray-500 font-normal">من أصل</span> {subscription.maxFiles} ملف</span>
                   </div>
                   
-                  {/* الـ Usage Progress Bar الفعلي */}
+                  {/* نظام الـ Progress Bar ونسب الاستهلاك الفعلي المقروء بصرياً */}
                   <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
                     <div className="bg-indigo-500 h-full rounded-full transition-all duration-300" style={{ width: `${(subscription.usedFiles / subscription.maxFiles) * 100}%` }}></div>
                   </div>
 
                   <div className="flex justify-between text-[11px] text-gray-400 pt-1">
-                    <span>نسبة الاستهلاك الفعلي: {Math.round((subscription.usedFiles / subscription.maxFiles) * 100)}%</span>
-                    <span>تاريخ التجديد القادم: {subscription.renewalDate}</span>
+                    <span>نسبة الحصة المستهلكة: {Math.round((subscription.usedFiles / subscription.maxFiles) * 100)}%</span>
+                    <span>تاريخ الفوترة والتجديد القادم: {subscription.renewalDate}</span>
                   </div>
                 </div>
 
-                {/* كرت الاستدعاء للوصول والتحويل المباشر لـ Stripe Portal */}
+                {/* كرت التوجيه لبوابة الدفع الحالية الخاصة بـ Stripe Customer Portal */}
                 <div className="pt-4 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <p className="text-xs text-gray-400 max-w-md">يمكنك مراجعة الفواتير التاريخية، تنزيل المستندات الضريبية أو تحديث وإلغاء وتغيير خطتك عبر التوجه الآمن لبوابة دفع العميل.</p>
-                  <button type="button" onClick={() => window.location.href = '/dashboard/billing'} className="w-full sm:w-auto bg-gray-900 border border-gray-800 text-gray-200 hover:bg-gray-800 font-bold text-xs px-5 py-3 rounded-xl transition-all whitespace-nowrap text-center">
-                    إدارة الفواتير والبطاقات عبر Stripe 💳
+                  <p className="text-xs text-gray-400 max-w-md">لمراجعة تاريخ الفواتير، تحميل المستندات الضريبية أو إلغاء الاشتراك وتعديل البطاقة الائتمانية، يرجى الانتقال لوحة الفوترة المجهزة مسبقاً.</p>
+                  <button type="button" onClick={() => window.location.href = '/dashboard/billing'} className="w-full sm:w-auto bg-gray-900 border border-gray-800 text-gray-200 hover:bg-gray-800 font-bold text-xs px-5 py-3 rounded-xl transition-all text-center">
+                    إدارة الاشتراك والفوترة عبر Stripe 💳
                   </button>
                 </div>
               </div>
