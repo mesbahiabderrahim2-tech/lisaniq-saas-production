@@ -2,15 +2,22 @@
 
 import React, { useState, useEffect } from 'react';
 
-// نظام أيقونات هندسي موحد ومصقل (Linear & Apple Minimalist Style)
-// خطوط دقيقة (1.5) وبدون أي خلفيات أو إطارات ديكورية زائدة لتجنب التشتت البصري
+/**
+ * 📊 ENTERPRISE ICON SYSTEM (SVG System Suite)
+ * نظام أيقونات هندسي موحد: مقاس 16px، وزن 1.5، نمط متسق هندسياً بدون زخارف زائدة.
+ */
 const Icons = {
-  account: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
-  org: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0V11m0 5H9m5-5h2m-2 5h2v-4a1 1 0 00-1-1h-1z" /></svg>,
-  security: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>,
-  billing: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>,
-  download: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>,
-  externalLink: () => <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+  // تبويبات الملاحة والعمليات الأساسية
+  user: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>,
+  building: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" /></svg>,
+  shield: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751A11.956 11.956 0 0 1 12 2.714Z" /></svg>,
+  creditCard: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-5.25-6.75h16.5a1.5 1.5 0 0 1 1.5 1.5v11.25a1.5 1.5 0 0 1-1.5 1.5H3.75a1.5 1.5 0 0 1-1.5-1.5V5.25a1.5 1.5 0 0 1 1.5-1.5Z" /></svg>,
+  
+  // دلالات الحقول الداخلية والمستندات
+  mail: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0l-7.5-4.615m19.5 0v-.243a2.25 2.25 0 0 0-1.07-1.916l-7.5-4.615a2.25 2.25 0 0 0-2.36 0l-7.5 4.615" /></svg>,
+  globe: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a8.966 8.966 0 0 1-5.917-2.244m5.917 2.244A8.967 8.967 0 0 0 18 18.75m-6 2.25V3m0 18a8.965 8.965 0 0 0 5.917-2.244M12 3c1.764 0 3.42.505 4.833 1.383L12 3Zm0 0A8.965 8.965 0 0 0 6.083 4.383L12 3Zm0 0v18M12 3a8.966 8.966 0 0 1 5.917 2.244M12 3a8.966 8.966 0 0 0-5.917 2.244" /></svg>,
+  download: () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>,
+  externalLink: () => <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
 };
 
 export default function SettingsPage() {
@@ -110,41 +117,38 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-[#0B0F19] text-gray-200 p-6 md:p-12 font-sans antialiased selection:bg-indigo-500/30 selection:text-white" dir="rtl">
       <div className="max-w-4xl mx-auto">
         
-        {/* هيدر الصفحة النظيف والمبسط جداً - تباين كامل واعتماد كامل على المساحات المفتوحة */}
+        {/* هيدر الصفحة النظيف والمبسط جداً */}
         <div className="mb-12">
           <h1 className="text-xl md:text-2xl font-semibold text-white tracking-tight">الإعدادات</h1>
           <p className="text-xs md:text-sm text-gray-500 font-normal mt-1.5">إدارة الحساب ومساحة العمل والأمان والفوترة.</p>
         </div>
 
-        {/* مساحة عرض الإشعارات الهادئة والمنسجمة سيادياً مع التصميم */}
         {message && <div className="mb-8 p-3.5 bg-emerald-950/20 border border-emerald-500/10 text-emerald-400 rounded-xl text-xs font-medium flex items-center gap-2"><span>•</span> {message}</div>}
 
-        {/* توزيع المعمارية الكلية للتبويبات والمحتوى */}
         <div className="flex flex-col md:flex-row gap-10 items-start">
           
-          {/* شريط التنقل الخطي الصارم - إزالة الأطر غير الضرورية والاعتماد على التباين النظيف والخطوط الشفافة */}
+          {/* شريط التنقل الخطي الصارم - يستدعي نظام الأيقونات الموحد بدقة مع اتساق الوزن والأبعاد */}
           <div className="w-full md:w-44 flex md:flex-col overflow-x-auto md:overflow-visible border-b md:border-b-0 border-gray-900 md:space-y-1 pb-1 md:pb-0 scrollbar-none snap-x gap-1">
-            <button type="button" onClick={() => { setActiveTab('account'); setMessage(''); setErrorMsg(''); }} className={`flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all flex-1 md:flex-none justify-center md:justify-start ${activeTab === 'account' ? 'bg-gray-900 text-white font-semibold' : 'text-gray-500 hover:text-gray-300 hover:bg-gray-900/30'}`}><Icons.account /> <span>الحساب</span></button>
-            <button type="button" onClick={() => { setActiveTab('org'); setMessage(''); setErrorMsg(''); }} className={`flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all flex-1 md:flex-none justify-center md:justify-start ${activeTab === 'org' ? 'bg-gray-900 text-white font-semibold' : 'text-gray-500 hover:text-gray-300 hover:bg-gray-900/30'}`}><Icons.org /> <span>المؤسسة</span></button>
-            <button type="button" onClick={() => { setActiveTab('security'); setMessage(''); setErrorMsg(''); }} className={`flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all flex-1 md:flex-none justify-center md:justify-start ${activeTab === 'security' ? 'bg-gray-900 text-white font-semibold' : 'text-gray-500 hover:text-gray-300 hover:bg-gray-900/30'}`}><Icons.security /> <span>الأمان</span></button>
-            <button type="button" onClick={() => { setActiveTab('billing'); setMessage(''); setErrorMsg(''); }} className={`flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all flex-1 md:flex-none justify-center md:justify-start ${activeTab === 'billing' ? 'bg-gray-900 text-white font-semibold' : 'text-gray-500 hover:text-gray-300 hover:bg-gray-900/30'}`}><Icons.billing /> <span>الفوترة</span></button>
+            <button type="button" onClick={() => { setActiveTab('account'); setMessage(''); setErrorMsg(''); }} className={`flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all flex-1 md:flex-none justify-center md:justify-start ${activeTab === 'account' ? 'bg-gray-900 text-white font-semibold' : 'text-gray-500 hover:text-gray-300 hover:bg-gray-900/30'}`}><Icons.user /> <span>الحساب</span></button>
+            <button type="button" onClick={() => { setActiveTab('org'); setMessage(''); setErrorMsg(''); }} className={`flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all flex-1 md:flex-none justify-center md:justify-start ${activeTab === 'org' ? 'bg-gray-900 text-white font-semibold' : 'text-gray-500 hover:text-gray-300 hover:bg-gray-900/30'}`}><Icons.building /> <span>المؤسسة</span></button>
+            <button type="button" onClick={() => { setActiveTab('security'); setMessage(''); setErrorMsg(''); }} className={`flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all flex-1 md:flex-none justify-center md:justify-start ${activeTab === 'security' ? 'bg-gray-900 text-white font-semibold' : 'text-gray-500 hover:text-gray-300 hover:bg-gray-900/30'}`}><Icons.shield /> <span>الأمان</span></button>
+            <button type="button" onClick={() => { setActiveTab('billing'); setMessage(''); setErrorMsg(''); }} className={`flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium rounded-lg transition-all flex-1 md:flex-none justify-center md:justify-start ${activeTab === 'billing' ? 'bg-gray-900 text-white font-semibold' : 'text-gray-500 hover:text-gray-300 hover:bg-gray-900/30'}`}><Icons.creditCard /> <span>الفوترة</span></button>
           </div>
 
-          {/* مساحة عرض المحتويات الصافية بدون أطر ثقيلة أو عناصر تشتيت ملونة */}
           <div className="flex-1 w-full text-sm">
             
             {/* ========================================================= */}
-            {/* 👤 قسم الحساب الشخصي (Decluttered Form) */}
+            {/* 👤 قسم الحساب الشخصي */}
             {/* ========================================================= */}
             {activeTab === 'account' && (
               <form onSubmit={handleSaveProfile} className="space-y-8">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-2">الاسم الكامل</label>
+                    <label className="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-1.5"><Icons.user /> الاسم الكامل</label>
                     <input type="text" value={profile.fullName} onChange={(e) => setProfile({ ...profile, fullName: e.target.value })} className="w-full bg-[#0B0F19] border border-gray-800 rounded-lg px-3 py-2.5 text-white text-xs focus:outline-none focus:border-gray-600 transition-all" required />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-2">البريد الإلكتروني</label>
+                    <label className="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-1.5"><Icons.mail /> البريد الإلكتروني</label>
                     <div className="w-full bg-transparent border border-gray-900 rounded-lg px-3 py-2.5 text-gray-500 text-xs select-none">
                       {profile.email}
                     </div>
@@ -180,17 +184,17 @@ export default function SettingsPage() {
             )}
 
             {/* ========================================================= */}
-            {/* 🏢 قسم المؤسسة (Decluttered View) */}
+            {/* 🏢 قسم المؤسسة */}
             {/* ========================================================= */}
             {activeTab === 'org' && (
               <form onSubmit={handleSaveOrg} className="space-y-8">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-2">اسم المؤسسة</label>
+                    <label className="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-1.5"><Icons.building /> اسم المؤسسة</label>
                     <input type="text" value={org.name} onChange={(e) => setOrg({ ...org, name: e.target.value })} className="w-full bg-[#0B0F19] border border-gray-800 rounded-lg px-3 py-2.5 text-white text-xs focus:outline-none focus:border-gray-600 transition-all" required />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-2">الموقع الإلكتروني الرسمي</label>
+                    <label className="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-1.5"><Icons.globe /> الموقع الإلكتروني الرسمي</label>
                     <input type="url" value={org.website} onChange={(e) => setOrg({ ...org, website: e.target.value })} className="w-full bg-[#0B0F19] border border-gray-800 rounded-lg px-3 py-2.5 text-white text-xs focus:outline-none focus:border-gray-600 transition-all" />
                   </div>
                 </div>
@@ -207,14 +211,14 @@ export default function SettingsPage() {
             )}
 
             {/* ========================================================= */}
-            {/* 🔒 قسم الأمان (Clean Security Pass) */}
+            {/* 🔒 قسم الأمان */}
             {/* ========================================================= */}
             {activeTab === 'security' && (
               <div className="space-y-8">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs text-gray-400">
                   <div className="space-y-1">
                     <span className="block font-medium">حالة أمان الحساب الحالية:</span>
-                    <span className="block text-white font-semibold">{security.securityStatus}</span>
+                    <span className="block text-white font-semibold flex items-center gap-1.5"><Icons.shield /> {security.securityStatus}</span>
                   </div>
                   <div className="space-y-1">
                     <span className="block font-medium">آخر الوصول والجلسات النشطة:</span>
@@ -245,7 +249,7 @@ export default function SettingsPage() {
             )}
 
             {/* ========================================================= */}
-            {/* 💳 قسم الفوترة الفاخر المصفى (Premium SaaS Billing Structure) */}
+            {/* 💳 قسم الفوترة والاشتراكات النظيف مع الأيقونات الموحدة */}
             {/* ========================================================= */}
             {activeTab === 'billing' && (
               <div className="space-y-12">
@@ -254,14 +258,14 @@ export default function SettingsPage() {
                 <div>
                   <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
                     <div>
-                      <h3 className="text-base font-semibold text-white tracking-tight">{subscription.planName}</h3>
+                      <h3 className="text-base font-semibold text-white tracking-tight flex items-center gap-1.5"><Icons.creditCard /> {subscription.planName}</h3>
                       <p className="text-xs text-gray-500 mt-1">حالة الحساب الحالي: {subscription.status} • الفوترة القادمة في {subscription.renewalDate}</p>
                     </div>
                     <span className="text-base font-medium text-gray-300 sm:text-left">{subscription.price}</span>
                   </div>
                 </div>
 
-                {/* SECTION 2: Usage Metrics (تجريد تام للبطاقات الكثيفة والاعتماد على بارات مجهرية نقية) */}
+                {/* SECTION 2: Usage Metrics */}
                 <div className="space-y-6">
                   <span className="text-xs font-medium text-gray-400 tracking-wider block">استهلاك الحصص الحالية</span>
                   
@@ -312,7 +316,7 @@ export default function SettingsPage() {
                   </button>
                 </div>
 
-                {/* SECTION 4: Billing History (سجل خطي مصفى بالكامل مقتبس من معايير Linear) */}
+                {/* SECTION 4: Billing History */}
                 <div className="space-y-3 pt-4">
                   <span className="text-xs font-medium text-gray-400 block">الفواتير السابقة</span>
                   <div className="border-t border-gray-900 divide-y divide-gray-950">
@@ -324,7 +328,7 @@ export default function SettingsPage() {
                         </div>
                         <div className="flex items-center gap-4">
                           <span className="font-medium text-gray-300 font-mono">{invoice.amount}</span>
-                          <button type="button" title="تحميل المستند" className="p-1 hover:text-white transition-all">
+                          <button type="button" title="تحميل المستند" className="p-1 hover:text-white transition-all flex items-center justify-center">
                             <Icons.download />
                           </button>
                         </div>
