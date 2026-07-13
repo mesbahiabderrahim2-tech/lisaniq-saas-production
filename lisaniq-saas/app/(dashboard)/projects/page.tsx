@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Plus, Folder, Calendar, ArrowRight } from 'lucide-react';
 
 interface Project {
@@ -14,8 +14,9 @@ interface Project {
 
 export default function ProjectsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [projects] = useState<Project[]>([]);
-
+  const [projects, setProjects] = useState<Project[]>([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState<string | null>(null);
   return (
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', fontFamily: 'sans-serif', direction: 'rtl' }}>
       
