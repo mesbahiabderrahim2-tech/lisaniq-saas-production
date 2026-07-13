@@ -46,6 +46,34 @@ async function loadProjects() {
     setLoading(false);
   }
 }
+  if (loading) {
+  return (
+    <div
+      style={{
+        padding: '2rem',
+        textAlign: 'center',
+        fontFamily: 'sans-serif'
+      }}
+    >
+      جاري تحميل المشاريع...
+    </div>
+  );
+}
+
+if (error) {
+  return (
+    <div
+      style={{
+        padding: '2rem',
+        textAlign: 'center',
+        color: 'red',
+        fontFamily: 'sans-serif'
+      }}
+    >
+      خطأ أثناء تحميل المشاريع: {error}
+    </div>
+  );
+}
   return (
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', fontFamily: 'sans-serif', direction: 'rtl' }}>
       
