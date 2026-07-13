@@ -17,6 +17,35 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+  loadProjects();
+}, []);
+
+async function loadProjects() {
+  try {
+    setLoading(true);
+    setError(null);
+
+    const response = await fetch('/api/projects');
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || 'Failed to load projects');
+    }
+
+    setProjects(result.data?.projects || []);
+  } catch (err) {
+    setError(
+      err instanceof Error
+        ? err.message
+        : 'Unknown error while loading projects'
+    );
+  } finally {
+    setLoading(false);
+  }
+}
   return (
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', fontFamily: 'sans-serif', direction: 'rtl' }}>
       
