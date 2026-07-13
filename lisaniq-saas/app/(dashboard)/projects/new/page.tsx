@@ -26,6 +26,8 @@ export default function NewProjectPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    alert('handleSubmit works')
     if (!projectName || !selectedFile) {
       alert('الرجاء إدخال اسم المشروع واختيار ملف PDF أولاً.')
       return
