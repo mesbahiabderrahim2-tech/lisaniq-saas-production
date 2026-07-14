@@ -100,8 +100,9 @@ if (error) {
             <Folder size={32} color="#0070f3" />
           </div>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>لا توجد مشاريع حالياً</h2>
-          <p style={{ color: '#666', fontSize: '0.875rem', marginBottom: '1.5rem' }}>قم برفع ملفات الـ PDF الخاصة بمشروعك الأول لبدء المعالجة والتحليل فوراً.</p>
-          
+          <p style={{ color: '#666', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+  أنشئ مشروعك الأول ثم ارفع ملف CSV أو Excel لبدء التحليل.
+</p>
           <button 
             onClick={() => setIsCreateModalOpen(true)} 
             style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#0070f3', color: '#fff', border: 'none', padding: '0.5rem 1.25rem', borderRadius: '6px', cursor: 'pointer', margin: '0 auto' }}
