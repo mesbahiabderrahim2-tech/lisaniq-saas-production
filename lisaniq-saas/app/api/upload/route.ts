@@ -22,14 +22,20 @@ export async function POST(request: NextRequest) {
 
   try {
     // 2️⃣ قراءة وتحليل بيانات الفورم (Multipart Form Data)
-    const formData = await request.formData();
-    const file = formData.get('file');
-    const clientId = formData.get('client_id') as string;
-    const customName = formData.get('name') as string;
+const formData = await request.formData();
 
-    if (!file || !(file instanceof File)) {
-      return badRequest('صيغة غير صالحة. يرجى إرفاق ملف CSV لم يتم توفير ملف.');
-    }
+const file = formData.get('file');
+const clientId = formData.get('client_id') as string;
+const projectId = formData.get('project_id') as string;
+const customName = formData.get('name') as string;
+
+if (!projectId) {
+  return badRequest('Project ID is required.');
+}
+
+if (!file || !(file instanceof File)) {
+  return badRequest('صيغة غير صالحة. يرجى إرفاق ملف CSV لم يتم توفير ملف.');
+}
 
     // 3️⃣ (Auto-Onboarding Architecture) تهيئة أو جلب المنظمة والعميل لضمان عدم تعطل الرفع
     const organization = await ClientService.getOrCreateOrganization(supabase, user.id, user.email || '');
