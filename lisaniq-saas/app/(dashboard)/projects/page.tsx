@@ -13,7 +13,7 @@ interface Project {
 }
 
 export default function ProjectsPage() {
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  isCreateModalOpe, setIsCreateModalOpen] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState<string | null>(null);
@@ -135,22 +135,4 @@ onClick={() => window.location.href = '/projects/new'}style={{ display: 'flex', 
       )}
 
       {/* النافذة المنبثقة البديلة والنظيفة لرفع الملفات */}
-      {isCreateModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', padding: '2rem', borderRadius: '12px', maxWidth: '500px', width: '90%' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>إنشاء مشروع جديد</h2>
-            <div style={{ border: '2px dashed #0070f3', padding: '2rem', textAlign: 'center', borderRadius: '8px', background: '#f0f7ff' }}>
-              <input type="file" accept=".pdf" id="modal-pdf" style={{ display: 'none' }} />
-              <label htmlFor="modal-pdf" style={{ cursor: 'pointer', color: '#0070f3' }}>اضغط هنا لاختيار ملف PDF</label>
-            </div>
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
-              <button onClick={() => setIsCreateModalOpen(false)} style={{ padding: '0.5rem 1rem', background: '#eee', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>إلغاء</button>
-              <button style={{ padding: '0.5rem 1rem', background: '#0070f3', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>ابدأ المعالجة</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-    </div>
-  );
-}
+      
