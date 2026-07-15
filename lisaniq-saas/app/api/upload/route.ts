@@ -120,17 +120,18 @@ if (!file || !(file instanceof File)) {
       .from('datasets')
       .select('*')
       .insert({
-        id: datasetId,
-        owner_id: user.id,
-        name: datasetName,
-        file_name: file.name,
-        file_path: storagePath,
-        file_size: file.size,
-        file_type: validation.extension,
-        row_count: parseResult.rowCount,
-        column_map: {},
-        status: 'processing'
-      });
+  id: datasetId,
+  owner_id: user.id,
+  project_id: projectId,
+  name: datasetName,
+  file_name: file.name,
+  file_path: storagePath,
+  file_size: file.size,
+  file_type: validation.extension,
+  row_count: parseResult.rowCount,
+  column_map: {},
+  status: 'processing'
+}); 
 
     if (insertError) {
       return serverError('فشل تهيئة وحفظ سجل البيانات في قاعدة البيانات.');
