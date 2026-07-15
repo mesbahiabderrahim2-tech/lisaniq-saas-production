@@ -84,8 +84,7 @@ if (error) {
           <p style={{ color: '#666', marginTop: '0.25rem' }}>إدارة وتحليل حملاتك التسويقية ومستنداتك الذكية في مكان واحد</p>
         </div>
         
-        <button 
-          onClick={() => setIsCreateModalOpen(true)} 
+ onClick={() => window.location.href = '/projects/new'}
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#0070f3', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }}
         >
           <Plus size={16} />
@@ -103,9 +102,7 @@ if (error) {
           <p style={{ color: '#666', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
   أنشئ مشروعك الأول ثم ارفع ملف CSV أو Excel لبدء التحليل.
 </p>
-          <button 
-            onClick={() => setIsCreateModalOpen(true)} 
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#0070f3', color: '#fff', border: 'none', padding: '0.5rem 1.25rem', borderRadius: '6px', cursor: 'pointer', margin: '0 auto' }}
+onClick={() => window.location.href = '/projects/new'}style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#0070f3', color: '#fff', border: 'none', padding: '0.5rem 1.25rem', borderRadius: '6px', cursor: 'pointer', margin: '0 auto' }}
           >
             <Plus size={16} />
             أنشئ مشروعك الأول
