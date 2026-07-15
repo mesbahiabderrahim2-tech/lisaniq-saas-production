@@ -66,8 +66,8 @@ export default function NewProjectPage() {
         </h1>
 
         <p className="text-sm text-slate-400 mt-2">
-          أنشئ مشروعاً جديداً ثم قم برفع ملفات CSV أو Excel لتحليل البيانات التسويقية.
-        </p>
+  أنشئ مشروعاً جديداً لتنظيم وتحليل البيانات التسويقية الخاصة بك.
+</p>
       </div>
 
       <form
