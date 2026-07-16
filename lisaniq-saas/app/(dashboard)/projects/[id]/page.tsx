@@ -74,7 +74,7 @@ export default async function ProjectDetailPage({ params }: Props) {
       </div>
       
 {/* ── Quick Actions ── */}
-<SectionLabel num="01" label="Quick Actions" />
+<SectionLabel num="01" label="Upload Dataset" />
 
 <div className="grid md:grid-cols-2 gap-4 mb-10">
 
