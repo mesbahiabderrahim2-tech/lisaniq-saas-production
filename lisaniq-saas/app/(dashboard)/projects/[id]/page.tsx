@@ -72,9 +72,97 @@ export default async function ProjectDetailPage({ params }: Props) {
           </p>
         </div>
       </div>
+      
+{/* ── Quick Actions ── */}
+<SectionLabel num="01" label="Quick Actions" />
 
+<div className="grid md:grid-cols-2 gap-4 mb-10">
+
+  <button
+    className="flex items-center justify-between p-5 rounded-xl transition-all hover:scale-[1.01]"
+    style={{
+      background: 'var(--surface-2)',
+      border: '1px solid var(--line-1)',
+    }}
+  >
+    <div>
+      <div
+        className="font-data text-[10px] uppercase tracking-[1.6px] mb-1"
+        style={{ color: 'var(--slate)' }}
+      >
+        Dataset
+      </div>
+
+      <div
+        className="text-[15px] font-semibold"
+        style={{ color: 'var(--platinum)' }}
+      >
+        Upload Dataset
+      </div>
+
+      <div
+        className="text-[12px] mt-1"
+        style={{ color: 'var(--silver)' }}
+      >
+        Import CSV or Excel marketing data
+      </div>
+    </div>
+
+    <div
+      className="w-10 h-10 rounded-full flex items-center justify-center"
+      style={{
+        background: 'rgba(61,111,232,.12)',
+        color: 'var(--sapphire)',
+      }}
+    >
+      ↑
+    </div>
+  </button>
+
+  <button
+    className="flex items-center justify-between p-5 rounded-xl transition-all hover:scale-[1.01]"
+    style={{
+      background: 'var(--surface-2)',
+      border: '1px solid var(--line-1)',
+    }}
+  >
+    <div>
+      <div
+        className="font-data text-[10px] uppercase tracking-[1.6px] mb-1"
+        style={{ color: 'var(--slate)' }}
+      >
+        Intelligence
+      </div>
+
+      <div
+        className="text-[15px] font-semibold"
+        style={{ color: 'var(--platinum)' }}
+      >
+        Generate Analysis
+      </div>
+
+      <div
+        className="text-[12px] mt-1"
+        style={{ color: 'var(--silver)' }}
+      >
+        Create a strategic intelligence report
+      </div>
+    </div>
+
+    <div
+      className="w-10 h-10 rounded-full flex items-center justify-center"
+      style={{
+        background: 'rgba(31,187,138,.12)',
+        color: 'var(--positive)',
+      }}
+    >
+      →
+    </div>
+  </button>
+
+</div>
       {/* ── Datasets ── */}
-      <SectionLabel num="01" label={`Datasets (${datasets.length})`} />
+      <SectionLabel num="02" label={`Datasets (${datasets.length})`} />
       {datasets.length === 0 ? (
         <EmptyState
           icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" /></svg>}
@@ -111,7 +199,7 @@ export default async function ProjectDetailPage({ params }: Props) {
       )}
 
       {/* ── Reports ── */}
-      <SectionLabel num="02" label={`Reports (${reports.length})`} />
+      <SectionLabel num="03" label={`Reports History (${reports.length})`} />
       {reports.length === 0 ? (
         <EmptyState
           icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>}
