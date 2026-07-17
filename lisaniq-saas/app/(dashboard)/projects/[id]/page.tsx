@@ -232,27 +232,33 @@ export default async function ProjectDetailPage({ params }: Props) {
           {datasets.length}
         </div>
       </div>
-
-      <button
-        disabled={datasets.length === 0}
-        className="px-5 py-2 rounded-lg font-medium text-[13px] transition-opacity"
-        style={{
-          background:
-            datasets.length === 0
-              ? 'var(--surface-2)'
-              : 'var(--positive)',
-          color:
-            datasets.length === 0
-              ? 'var(--slate)'
-              : '#ffffff',
-          cursor:
-            datasets.length === 0
-              ? 'not-allowed'
-              : 'pointer',
-        }}
-      >
-        Generate Analysis
-      </button>
+{datasets.length === 0 ? (
+  <button
+    disabled
+    className="px-5 py-2 rounded-lg font-medium text-[13px]"
+    style={{
+      background: 'var(--surface-2)',
+      color: 'var(--slate)',
+      cursor: 'not-allowed',
+    }}
+  >
+    Generate Analysis
+  </button>
+) : (
+  <Link
+    href="/reports"
+    className="px-5 py-2 rounded-lg font-medium text-[13px]"
+    style={{
+      background: 'var(--positive)',
+      color: '#ffffff',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
+    Generate Analysis
+  </Link>
+)}
     </div>
 
   </div>
