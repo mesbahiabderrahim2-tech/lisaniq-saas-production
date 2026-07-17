@@ -165,6 +165,49 @@ export default async function ProjectDetailPage({ params }: Props) {
         marketing insights, KPI diagnostics, risk detection,
         and strategic recommendations.
       </p>
+      {datasets.length > 0 && (
+  <div
+    className="mt-4 rounded-lg p-4"
+    style={{
+      background: 'var(--surface-3)',
+      border: '1px solid var(--line-1)',
+    }}
+  >
+    <div
+      className="font-data text-[10px] uppercase tracking-[1.2px] mb-3"
+      style={{ color: 'var(--slate)' }}
+    >
+      Datasets Selected For Analysis
+    </div>
+
+    <div className="flex flex-col gap-2">
+      {datasets.map((dataset) => (
+        <div
+          key={dataset.id}
+          className="flex items-center justify-between gap-3"
+        >
+          <div>
+            <div
+              className="text-[13px] font-medium"
+              style={{ color: 'var(--platinum)' }}
+            >
+              {dataset.name}
+            </div>
+
+            <div
+              className="text-[11px]"
+              style={{ color: 'var(--slate)' }}
+            >
+              {dataset.file_name}
+            </div>
+          </div>
+
+          <DatasetStatusBadge status={dataset.status} />
+        </div>
+      ))}
+    </div>
+  </div>
+)}
     </div>
 
     <div
