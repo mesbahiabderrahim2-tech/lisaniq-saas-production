@@ -142,7 +142,79 @@ export default async function ProjectDetailPage({ params }: Props) {
           </table>
         </Card>
       )}
+      
+{/* ── Generate Analysis ── */}
+<SectionLabel num="03" label="Generate Analysis" />
 
+<Card className="mb-8">
+  <div className="flex items-center justify-between gap-6 flex-wrap">
+
+    <div className="flex-1 min-w-[280px]">
+      <h3
+        className="text-[15px] font-semibold mb-1"
+        style={{ color: 'var(--platinum)' }}
+      >
+        Generate Strategic Intelligence Report
+      </h3>
+
+      <p
+        className="text-[12px] leading-relaxed"
+        style={{ color: 'var(--silver)' }}
+      >
+        Analyze uploaded datasets and generate executive-level
+        marketing insights, KPI diagnostics, risk detection,
+        and strategic recommendations.
+      </p>
+    </div>
+
+    <div
+      className="flex items-center gap-4 px-4 py-3 rounded-lg"
+      style={{
+        background: 'var(--surface-3)',
+        border: '1px solid var(--line-1)',
+      }}
+    >
+      <div>
+        <div
+          className="font-data text-[10px] uppercase tracking-[1.2px]"
+          style={{ color: 'var(--slate)' }}
+        >
+          Available Datasets
+        </div>
+
+        <div
+          className="text-[18px] font-bold"
+          style={{ color: 'var(--platinum)' }}
+        >
+          {datasets.length}
+        </div>
+      </div>
+
+      <button
+        disabled={datasets.length === 0}
+        className="px-5 py-2 rounded-lg font-medium text-[13px] transition-opacity"
+        style={{
+          background:
+            datasets.length === 0
+              ? 'var(--surface-2)'
+              : 'var(--positive)',
+          color:
+            datasets.length === 0
+              ? 'var(--slate)'
+              : '#ffffff',
+          cursor:
+            datasets.length === 0
+              ? 'not-allowed'
+              : 'pointer',
+        }}
+      >
+        Generate Analysis
+      </button>
+    </div>
+
+  </div>
+</Card>
+      
       {/* ── Reports ── */}
       <SectionLabel num="04" label={`Reports History (${reports.length})`} />
       {reports.length === 0 ? (
