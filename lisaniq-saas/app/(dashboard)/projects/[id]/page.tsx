@@ -73,6 +73,39 @@ export default async function ProjectDetailPage({ params }: Props) {
         </div>
       </div>
       
+      {/* ── Upload Dataset ── */}
+<SectionLabel num="01" label="Upload Dataset" />
+
+<Card className="mb-8">
+  <div className="flex items-center justify-between gap-4 flex-wrap">
+    <div>
+      <h3
+        className="text-[15px] font-semibold mb-1"
+        style={{ color: 'var(--platinum)' }}
+      >
+        Upload Marketing Dataset
+      </h3>
+
+      <p
+        className="text-[12px]"
+        style={{ color: 'var(--silver)' }}
+      >
+        Import CSV or Excel campaign data to start analysis.
+      </p>
+    </div>
+
+    <button
+      className="px-4 py-2 rounded-lg font-medium text-[13px]"
+      style={{
+        background: 'var(--sapphire)',
+        color: '#fff',
+      }}
+    >
+      Upload Dataset
+    </button>
+  </div>
+</Card>
+      
       {/* ── Datasets ── */}
       <SectionLabel num="02" label={`Datasets (${datasets.length})`} />
       {datasets.length === 0 ? (
