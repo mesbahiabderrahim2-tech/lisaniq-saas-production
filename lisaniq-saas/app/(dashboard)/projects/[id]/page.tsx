@@ -8,6 +8,8 @@ import {
   SectionLabel, StatusBadge, DatasetStatusBadge, EmptyState, Card,
 } from '@/components/dashboard/PagePrimitives'
 
+import GenerateReportButton from '@/components/dashboard/GenerateReportButton'
+
 export const metadata: Metadata = { title: 'Project' }
 
 interface Props { params: Promise<{ id: string }> }
@@ -245,7 +247,11 @@ export default async function ProjectDetailPage({ params }: Props) {
     Generate Analysis
   </button>
 ) : (
-  
+  <GenerateReportButton
+    projectId={project.id}
+    datasetId={datasets[0].id}
+    datasetName={datasets[0].name}
+  />
 )}
     </div>
 
