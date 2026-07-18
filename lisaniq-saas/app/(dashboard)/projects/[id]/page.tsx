@@ -245,19 +245,7 @@ export default async function ProjectDetailPage({ params }: Props) {
     Generate Analysis
   </button>
 ) : (
-  <Link
-    href="/reports"
-    className="px-5 py-2 rounded-lg font-medium text-[13px]"
-    style={{
-      background: 'var(--positive)',
-      color: '#ffffff',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}
-  >
-    Generate Analysis
-  </Link>
+  
 )}
     </div>
 
