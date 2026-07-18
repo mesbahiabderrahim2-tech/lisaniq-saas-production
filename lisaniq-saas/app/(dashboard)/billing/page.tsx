@@ -6,7 +6,7 @@ import { PageHeader, Card, StatCard } from "@/components/dashboard/PagePrimitive
 
 // معرفات الأسعار التي سترتبط برمز البيئة الديناميكي لاحقاً
 const STRIPE_PRICING_IDS = {
-  pro: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO || "price_placeholder_will_be_updated_soon",
+  pro: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY || "price_placeholder_will_be_updated_soon",
 };
 
 export default function BillingPage() {
