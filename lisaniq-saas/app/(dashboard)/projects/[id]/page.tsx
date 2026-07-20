@@ -43,7 +43,10 @@ export default async function ProjectDetailPage({ params }: Props) {
     .eq('id', id)
     .eq('owner_id', authUser.id)
     .single()
-
+  
+console.log('PROJECT PAGE DATA:', data)
+console.log('PROJECT PAGE ERROR:', error)
+  
   if (error || !data) notFound()
 
   const project  = data as ProjectDetail
