@@ -46,23 +46,21 @@ export default async function ProjectDetailPage({ params }: Props) {
   
 console.log('PROJECT PAGE DATA:', data)
 console.log('PROJECT PAGE ERROR:', error)
-  
-  if (error || !data) notFound()
 
-  const project  = data as ProjectDetail
-  const datasets = project.datasets ?? []
-  const reports  = project.reports  ?? []
+if (error || !data) notFound()
 
-  return (
+const project  = data as ProjectDetail
+const datasets = project.datasets ?? []
+const reports  = project.reports  ?? []
+
+return (
   <div style={{ color: 'white', padding: '40px' }}>
     <h1>{project.name}</h1>
-
-    <p>
-      PROJECT PAGE WORKS
-    </p>
+    <p>PROJECT PAGE WORKS</p>
   </div>
 )
 }
+
       {/* Project header */}
       <div className="flex items-start gap-4 mb-8 flex-wrap">
         <div className="w-3.5 h-3.5 rounded-full mt-2 shrink-0" style={{ background: project.color }} />
