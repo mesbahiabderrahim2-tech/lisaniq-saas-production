@@ -62,7 +62,7 @@ console.log('PROJECT PAGE ERROR:', error)
     </p>
   </div>
 )
-
+}
       {/* Project header */}
       <div className="flex items-start gap-4 mb-8 flex-wrap">
         <div className="w-3.5 h-3.5 rounded-full mt-2 shrink-0" style={{ background: project.color }} />
