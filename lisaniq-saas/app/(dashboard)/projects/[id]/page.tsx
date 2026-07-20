@@ -54,12 +54,13 @@ const datasets = project.datasets ?? []
 const reports  = project.reports  ?? []
 
 return (
-  <div style={{ color: 'white', padding: '40px' }}>
-    <h1>{project.name}</h1>
-    <p>PROJECT PAGE WORKS</p>
-  </div>
-)
-}
+<div className="p-6 lg:p-10 max-w-[1100px]">
+{/* Breadcrumb */}
+<div className="flex items-center gap-2 mb-6 text-[12px]" style={{ color: 'var(--slate)' }}>
+<Link href="/projects" style={{ color: 'var(--sapphire)' }}>Projects</Link>
+<span>/</span>
+<span style={{ color: 'var(--silver)' }}>{project.name}</span>
+</div>
 
       {/* Project header */}
       <div className="flex items-start gap-4 mb-8 flex-wrap">
