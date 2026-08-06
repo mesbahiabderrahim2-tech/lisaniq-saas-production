@@ -6,6 +6,8 @@ Version: 1.0
 
 Status: Active
 
+Last Updated: August 2026
+
 ---
 
 # Objective
@@ -22,23 +24,34 @@ Status
 
 🟡
 
+Routes and files verified:
+
+- app/(auth)/login/page.tsx ✅
+- app/(auth)/register/page.tsx ✅
+- app/(auth)/reset-password/page.tsx ✅
+- app/auth/callback/route.ts ✅
+- middleware.ts ✅
+- lib/supabase/server.ts ✅
+- lib/supabase/client.ts ✅
+- lib/supabase/admin.ts ✅
+
 Tasks
 
-⬜ User Registration
+✅ User Registration
 
 ⬜ Email Verification
 
-⬜ Login
+✅ Login
 
-⬜ Logout
+✅ Logout
 
-⬜ Password Reset
+✅ Password Reset (page exists)
 
-⬜ Session Persistence
+✅ Session Persistence (middleware + SSR client)
 
-⬜ Protected Routes
+✅ Protected Routes (middleware)
 
-⬜ User Profile Creation
+✅ User Profile Creation (BUG-004 resolved — trigger primary, services/user-profile.ts defensive fallback)
 
 ---
 
@@ -48,17 +61,26 @@ Status
 
 🟡
 
+Routes and files verified:
+
+- app/(dashboard)/layout.tsx ✅
+- app/(dashboard)/dashboard/page.tsx ✅
+- components/dashboard/DashboardShell.tsx ✅
+- components/dashboard/Header.tsx ✅
+- components/dashboard/Sidebar.tsx ✅
+- components/dashboard/PagePrimitives.tsx ✅
+
 Tasks
 
-⬜ Dashboard Layout
+✅ Dashboard Layout
 
-⬜ User Information
+✅ Navigation
+
+⬜ User Information (profile display)
 
 ⬜ Subscription Status
 
-⬜ Usage Statistics
-
-⬜ Navigation
+⬜ Usage Statistics (app/api/usage/route.ts exists)
 
 ⬜ Loading States
 
@@ -72,9 +94,22 @@ Status
 
 🟡
 
+Routes and files verified:
+
+- app/(dashboard)/projects/page.tsx ✅
+- app/(dashboard)/projects/new/page.tsx ✅
+- app/(dashboard)/projects/[id]/page.tsx ✅
+- app/api/projects/route.ts ✅
+- app/api/projects/[id]/route.ts ✅
+- supabase/migrations/003_projects.sql ✅
+
 Tasks
 
-⬜ Create Project
+✅ Projects API (GET, POST)
+
+✅ Project detail API (GET, PATCH, DELETE)
+
+⬜ Create Project (UI complete and working)
 
 ⬜ Rename Project
 
@@ -96,13 +131,23 @@ Status
 
 🟡
 
+Routes and files verified:
+
+- app/api/upload/route.ts ✅
+- components/dashboard/CSVUploadSystem.tsx ✅
+- services/file-parser.ts ✅
+- services/storage.ts ✅
+- supabase/migrations/004_datasets.sql ✅
+- supabase/migrations/008_storage.sql ✅
+- supabase/migrations/010_prepare_dataset_aggregation.sql ✅
+- app/api/datasets/route.ts ✅
+- app/api/datasets/[id]/route.ts ✅
+
 Tasks
 
-⬜ Upload Audio
+⬜ Upload CSV
 
-⬜ Upload PDF
-
-⬜ Upload Text
+⬜ Upload XLSX
 
 ⬜ Upload Validation
 
@@ -116,49 +161,34 @@ Tasks
 
 ---
 
-# AI Features
+# Reports
 
 Status
 
 🟡
 
-Tasks
+Routes and files verified:
 
-⬜ AI Conversation
-
-⬜ Speaking Feedback
-
-⬜ Grammar Correction
-
-⬜ Vocabulary Suggestions
-
-⬜ Pronunciation Analysis
-
-⬜ Response Streaming
-
-⬜ Error Handling
-
----
-
-# Learning Experience
-
-Status
-
-⬜
+- app/(dashboard)/reports/page.tsx ✅
+- app/(dashboard)/reports/[id]/page.tsx ✅
+- app/api/reports/route.ts ✅
+- app/api/reports/[id]/route.ts ✅
+- components/dashboard/GenerateReportButton.tsx ✅
+- supabase/migrations/005_reports.sql ✅
 
 Tasks
 
-⬜ Learning Session
+⬜ Generate Report
 
-⬜ Conversation Flow
+⬜ Report List
 
-⬜ Progress Tracking
+⬜ Report Detail
 
-⬜ Session History
+⬜ Star Report
 
-⬜ AI Recommendations
+⬜ Delete Report
 
-⬜ Completion Feedback
+⬜ PDF Export
 
 ---
 
@@ -167,6 +197,19 @@ Tasks
 Status
 
 🟡
+
+Routes and files verified:
+
+- app/api/stripe/checkout/route.ts ✅
+- app/api/stripe/portal/route.ts ✅
+- app/api/stripe/webhook/route.ts ✅
+- app/api/checkout/route.ts ✅
+- app/api/webhook/route.ts ✅
+- app/(dashboard)/billing/page.tsx ✅
+- components/dashboard/StripeButton.tsx ✅
+- components/PricingPlans.tsx ✅
+- services/stripe.ts ✅
+- supabase/migrations/006_subscriptions.sql ✅
 
 Tasks
 
@@ -178,7 +221,7 @@ Tasks
 
 ⬜ Subscription Sync
 
-⬜ Webhook
+⬜ Webhook (role no longer overwritten — BUG-003 resolved)
 
 ⬜ Upgrade Plan
 
@@ -192,67 +235,72 @@ Tasks
 
 Status
 
-⬜
+🟡
+
+Routes and files verified:
+
+- app/(dashboard)/settings/page.tsx ✅
+- app/api/settings/update/route.ts ✅
+- app/(dashboard)/settings/components/ProfileOverview.tsx ✅
+- app/(dashboard)/settings/components/BillingCard.tsx ✅
+- app/(dashboard)/settings/components/SecurityScoreCard.tsx ✅
+- app/(dashboard)/settings/components/SettingsHeader.tsx ✅
+- app/(dashboard)/settings/components/SettingsSidebar.tsx ✅
+- app/(dashboard)/settings/components/TeamMembers.tsx ✅
+- components/settings/ProfileHero.tsx ✅
+- components/settings/SecurityScore.tsx ✅
+- components/settings/TeamCard.tsx ✅
 
 Tasks
 
-⬜ Profile
-
-⬜ Avatar
+⬜ Profile Update (full_name, avatar_url — both exist in public.users)
 
 ⬜ Change Password
 
-⬜ Theme
+⬜ Billing Information
 
-⬜ Language
-
-⬜ Notifications
+⬜ Team Members Display
 
 ---
 
-# Landing Page
+# Activity Logging
 
 Status
 
-⬜
+🟡
+
+Routes and files verified:
+
+- services/activity.ts ✅
+- supabase/migrations/007_activity_logs.sql ✅
 
 Tasks
 
-⬜ Hero Section
+⬜ Log project actions
 
-⬜ Features
+⬜ Log dataset actions
 
-⬜ Pricing
-
-⬜ Testimonials
-
-⬜ FAQ
-
-⬜ Contact
-
-⬜ CTA
+⬜ Log report actions
 
 ---
 
-# Performance
+# Plan Limits
 
 Status
 
-⬜
+🟡
+
+Routes and files verified:
+
+- services/plan-limits.ts ✅
 
 Tasks
 
-⬜ Fast Loading
+⬜ Free plan limits enforced
 
-⬜ Lazy Loading
+⬜ Pro plan limits enforced
 
-⬜ Optimized Images
-
-⬜ Database Optimization
-
-⬜ API Optimization
-
-⬜ Caching
+⬜ Upgrade prompt when limit reached
 
 ---
 
@@ -264,19 +312,17 @@ Status
 
 Tasks
 
-⬜ RLS
+✅ RLS enabled on all tables (migrations 002–007)
 
-⬜ Authentication Validation
+✅ Authentication validation (lib/api-utils.ts requireAuth())
 
-⬜ API Protection
+✅ API Protection (requireAuth() on all API routes)
 
 ⬜ Input Validation
 
 ⬜ File Validation
 
 ⬜ XSS Protection
-
-⬜ SQL Injection Protection
 
 ⬜ Rate Limiting
 
@@ -290,51 +336,21 @@ Status
 
 Tasks
 
-⬜ Friendly Errors
+✅ API error responses (lib/api-utils.ts response factories)
+
+✅ Auth errors (requireAuth discriminated union)
+
+✅ DB errors separated from 0-row results (maybeSingle — BUG-004)
+
+⬜ Friendly UI Errors
 
 ⬜ Retry Actions
 
 ⬜ Global Error Boundary
 
-⬜ API Errors
+⬜ Upload Errors UI
 
-⬜ Upload Errors
-
-⬜ Stripe Errors
-
----
-
-# Mobile Experience
-
-Status
-
-⬜
-
-Tasks
-
-⬜ Responsive Layout
-
-⬜ Mobile Navigation
-
-⬜ Mobile Upload
-
-⬜ Mobile AI Chat
-
-⬜ Mobile Dashboard
-
----
-
-# Browser Support
-
-Tasks
-
-⬜ Chrome
-
-⬜ Edge
-
-⬜ Firefox
-
-⬜ Safari
+⬜ Stripe Errors UI
 
 ---
 
@@ -346,9 +362,9 @@ Status
 
 Tasks
 
-⬜ Environment Variables
+⬜ Environment Variables (see docs/09_ENVIRONMENT.md)
 
-⬜ Production Build
+⬜ Production Build passes
 
 ⬜ No TypeScript Errors
 
@@ -358,7 +374,7 @@ Tasks
 
 ⬜ Logging
 
-⬜ Backups
+⬜ Supabase migration 012 applied to production DB
 
 ---
 
@@ -366,34 +382,38 @@ Tasks
 
 The MVP is NOT complete until:
 
-✅ Authentication works.
+✅ Authentication works for all account types (BUG-004 resolved)
 
-✅ Projects work.
+⬜ Projects work end to end
 
-✅ Uploads work.
+⬜ Uploads work end to end
 
-✅ AI works.
+⬜ Reports work end to end
 
-✅ Payments work.
+⬜ Payments work end to end
 
-✅ No Critical Bugs remain.
+⬜ No Critical Bugs remain
 
-✅ A real user can complete the entire journey.
+⬜ A real user can complete the entire journey without error
 
 ---
 
 # Current Focus
 
-Current blocking issue:
+BUG-004 resolved ✅ (August 2026)
 
-Friend cannot access Projects page.
+Critical bugs remaining: 0
 
-Priority:
+High bugs remaining: 0
 
-CRITICAL
+Next action:
 
-After fixing it:
+Complete this checklist top to bottom, section by section.
 
-Return immediately to completing this checklist.
+Start from the first incomplete task in each section.
 
-No new features should be added until this checklist reaches 100%.
+Do not skip sections.
+
+Do not add new features outside this checklist.
+
+After every session, return to this file and mark completed items.
