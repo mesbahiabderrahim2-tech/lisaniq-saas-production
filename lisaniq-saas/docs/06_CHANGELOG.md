@@ -6,7 +6,7 @@ Version: 1.0
 
 Status: Active
 
-Last Updated: July 2026
+Last Updated: August 2026
 
 ---
 
@@ -260,18 +260,108 @@ Production Stability
 
 Status
 
-🟡 In Progress
+✅ Completed
 
 ---
 
-## Current Work
+## Changes
 
-Improving:
+- Authentication stability improvements
+- Upload reliability improvements
+- API consistency improvements
 
-- Authentication stability
-- Friend account access
-- Upload reliability
-- API consistency
+---
+
+# Version 0.8.1
+
+BUG-004 — Friend Authentication (Production-Grade Fix)
+
+Status
+
+✅ Completed
+
+Date
+
+August 2026
+
+---
+
+## Root Cause
+
+handle_new_user trigger did not fire for all account creation paths.
+
+requireAuth() used .single() which conflated 0-rows with database errors.
+
+Both produced identical 401 responses with no recovery path.
+
+Dashboard layout used a silent fallback (profile?.email ?? authUser.email)
+that hid the failure — dashboard appeared to work while every API route
+returned 401.
+
+---
+
+## Architecture Decision
+
+Trigger (handle_new_user) remains the PRIMARY mechanism.
+
+New service (ensureUserProfile) provides the DEFENSIVE FALLBACK only.
+
+Separation of concerns strictly enforced:
+
+- requireAuth() → authentication only
+- ensureUserProfile() → profile recovery only
+
+---
+
+## Changes
+
+### services/user-profile.ts (NEW)
+
+- Dedicated ensureUserProfile() service
+- Accepts SupabaseUser from @supabase/supabase-js
+- Uses createAdminClient() from lib/supabase/admin.ts (service role, bypasses RLS)
+- UPSERT with ignoreDuplicates: true and onConflict: 'id' — race-condition safe
+- Inserts id, email, full_name, avatar_url — columns confirmed in 002_users.sql
+- role and plan omitted — DB defaults apply ('owner', 'free')
+- Structured [DEFENSIVE] warning log with user ID and email
+- Typed EnsureProfileResult discriminated union
+- Never throws — always returns typed ok / error
+
+### lib/api-utils.ts
+
+- .single() replaced with .maybeSingle()
+- Profile creation logic fully removed from requireAuth()
+- requireAuth() delegates to ensureUserProfile() only when maybeSingle() returns null
+- DB errors (profileError) return 500, not 401
+- Uses User type from @/types
+
+### app/(dashboard)/layout.tsx
+
+- .single() replaced with .maybeSingle()
+- Uses User type from @/types
+- Comment updated to reflect that recovery happens on first API call
+
+### supabase/migrations/012_backfill_missing_profiles.sql (NEW)
+
+- Backfills all auth.users rows with no public.users row
+- INSERT uses id, email, full_name, avatar_url — matches 002_users.sql exactly
+- ON CONFLICT (id) DO NOTHING — idempotent, safe to run multiple times
+- Hardens handle_new_user() with EXCEPTION WHEN OTHERS + RAISE WARNING
+- Ensures trigger exists with DROP IF EXISTS + CREATE TRIGGER
+
+---
+
+## Impact
+
+- All users (owner, friend, newly registered) can now access Projects
+- No unrelated files modified
+- No architectural changes outside BUG-004 scope
+
+---
+
+## Related Bugs
+
+BUG-004
 
 ---
 
@@ -361,13 +451,15 @@ Always verify schema before changing code.
 
 Current Sprint
 
-Friend Account Access
+MVP Checklist Completion
 
 Priority
 
-🔴 Critical
+🟡 Medium
 
-After completion
+BUG-004 resolved ✅
+
+Next action:
 
 Return immediately to:
 
@@ -388,7 +480,8 @@ Continue until MVP reaches 100%.
 | 0.5.0 | 🟡 | Upload |
 | 0.6.0 | 🟡 | Billing |
 | 0.7.0 | ✅ | Database Stabilization |
-| 0.8.0 | 🟡 | Production Stability |
+| 0.8.0 | ✅ | Production Stability |
+| 0.8.1 | ✅ | BUG-004 Friend Authentication Fix |
 | 0.9.0 | ⏳ | Final MVP |
 | 1.0.0 | 🚀 | Public Release |
 
