@@ -65,11 +65,30 @@ type AuthFailure = { success: false; response: NextResponse }
 type AuthResult  = AuthSuccess | AuthFailure
 
 /**
- * Verifies the request session and returns a discriminated union.
- * Callers narrow with `if (!result.success) return result.response`.
- * After that guard ctx is typed as AuthContext with no nullability.
+ * Verifies the request session and returns a typed discriminated union.
+ *
+ * Callers narrow with:
+ *   const auth = await requireAuth()
+ *   if (!auth.success) return auth.response
+ *   // auth.ctx is fully typed here
+ *
+ * Responsibilities (authentication only — no business logic):
+ *   1. Validate the session via supabase.auth.getUser().
+ *   2. Load the user profile from public.users.
+ *   3. If the profile is unexpectedly missing, delegate recovery to
+ *      ensureUserProfile() — a dedicated service with UPSERT semantics.
+ *
+ * The trigger (handle_new_user) is the primary profile-creation path.
+ * ensureUserProfile() is the defensive fallback, called only when
+ * maybeSingle() returns null (i.e. the trigger did not fire).
+ *
+ * Design:
+ *   • maybeSingle() → null means 0 rows (profile missing).
+ *   • maybeSingle() → error means a real database problem.
+ *   These two cases are now distinct and handled separately.
  */
 export async function requireAuth(): Promise<AuthResult> {
+  // ── Step 1: validate session ───────────────────────────────
   const supabase = await createClient()
   const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
 
@@ -77,17 +96,41 @@ export async function requireAuth(): Promise<AuthResult> {
     return { success: false, response: unauthorized() }
   }
 
-  const { data: userProfile, error: profileError } = await supabase
+  // ── Step 2: load the profile ───────────────────────────────
+  // maybeSingle() returns null (no error) when 0 rows match,
+  // and an error object only for real database failures.
+  const { data: profile, error: profileError } = await supabase
     .from('users')
     .select('*')
     .eq('id', authUser.id)
-    .single()
+    .maybeSingle()
 
-  if (profileError || !userProfile) {
-    return { success: false, response: unauthorized('User profile not found.') }
+  if (profileError) {
+    console.error(
+      '[requireAuth] profile query error:',
+      profileError.code, profileError.message,
+      'User:', authUser.id,
+    )
+    return { success: false, response: serverError('Could not load user profile.') }
   }
 
-  return { success: true, ctx: { user: userProfile as User, supabase } }
+  if (profile) {
+    // Happy path — trigger fired correctly on registration.
+    return { success: true, ctx: { user: profile as User, supabase } }
+  }
+
+  // ── Step 3: defensive recovery ─────────────────────────────
+  // Profile is missing. The trigger (handle_new_user) should have
+  // created it, but did not. Delegate to the dedicated service.
+  // This is logged as a WARNING inside ensureUserProfile() itself.
+  const { ensureUserProfile } = await import('@/services/user-profile')
+  const result = await ensureUserProfile(authUser)
+
+  if (!result.ok) {
+    return { success: false, response: serverError('Could not initialise user profile.') }
+  }
+
+  return { success: true, ctx: { user: result.profile, supabase } }
 }
 
 // ── Pagination helpers ──────────────────────────────────────
