@@ -6,7 +6,7 @@ Version: 1.0
 
 Status: Active
 
-Last Updated: July 2026
+Last Updated: August 2026
 
 ---
 
@@ -292,39 +292,169 @@ Priority
 
 Status
 
-🟡 Investigating
+🟢 Resolved (Production-Grade)
+
+Date Resolved
+
+August 2026
 
 ---
 
 ## Symptoms
 
-Owner account works correctly.
+Any user whose public.users profile was missing received:
 
-Friend account receives an error when opening Projects.
+"User profile not found"
 
----
+when accessing Projects or any API-protected route.
 
-## Current Findings
+Authentication succeeded (valid session existed).
 
-Authentication succeeds.
+Dashboard shell rendered (silent fallback hid the failure).
 
-Issue appears after login when accessing Projects.
-
-Possible causes under investigation:
-
-- RLS policy
-- Missing profile row
-- Ownership checks
-- Project permissions
+All API routes returned 401.
 
 ---
 
-## Next Actions
+## Root Cause
 
-- Verify friend user exists in public.users
-- Verify RLS policies
-- Verify ownership validation
-- Test with fresh invited account
+Three independent layers all failed simultaneously.
+
+### Layer 1 — Missing public.users row
+
+The on_auth_user_created trigger (handle_new_user) only fires on INSERT
+into auth.users. Accounts created via the Supabase dashboard, accounts
+created before the trigger existed, or accounts where the trigger failed
+silently had a valid auth.users entry but NO public.users row.
+
+### Layer 2 — .single() conflated 0-rows with DB errors
+
+requireAuth() used .single() which throws PGRST116 for both:
+- 0 rows matched (profile missing)
+- Real database error
+
+Both became identical 401 responses with no way to distinguish or recover.
+
+### Layer 3 — Dashboard layout masked the failure
+
+The layout used profile?.email ?? authUser.email as a silent fallback.
+Dashboard appeared to work. Only API routes failed, making the bug harder to find.
+
+---
+
+## Evidence
+
+- lib/api-utils.ts — .single() treats 0 rows as error (PGRST116)
+- app/(dashboard)/layout.tsx — silent fallback masked the root cause
+- supabase/migrations/001_bootstrap.sql — trigger fires only on auth.users INSERT
+- supabase/migrations/002_users.sql — confirmed columns: id, email, full_name, avatar_url, role, plan
+- Supabase SQL editor — confirmed some auth.users had no public.users row
+
+---
+
+## Final Architecture (Production-Grade)
+
+### Principle
+
+The database trigger (handle_new_user) is the PRIMARY and official
+mechanism for creating public.users rows. It must never be replaced.
+
+The application provides a DEFENSIVE FALLBACK only — for cases where
+the trigger legitimately did not fire.
+
+### Separation of Concerns
+
+```
+requireAuth()        → authentication only
+ensureUserProfile()  → profile recovery only (separate service)
+```
+
+These responsibilities are never mixed.
+
+### Flow
+
+```
+requireAuth()
+  ├── auth.getUser() → no user → 401
+  ├── .maybeSingle() → profile exists → return (happy path)
+  ├── .maybeSingle() → DB error → log + 500
+  └── .maybeSingle() → null (profile missing)
+        └── ensureUserProfile(authUser)
+              ├── WARN: [DEFENSIVE] Profile missing. Auto-recovering. User: xxx
+              ├── UPSERT ON CONFLICT (id) DO NOTHING (race-safe)
+              ├── SELECT row back
+              └── return profile
+```
+
+### Race Condition Safety
+
+Two concurrent requests for the same missing profile both call UPSERT.
+Exactly one INSERT wins. The other is a silent no-op (ON CONFLICT DO NOTHING).
+Both then read the same row back and succeed.
+
+---
+
+## Files Changed
+
+- lib/api-utils.ts
+  - .single() replaced with .maybeSingle()
+  - Profile creation logic removed from requireAuth()
+  - Delegates to ensureUserProfile() when profile is missing
+
+- services/user-profile.ts (NEW)
+  - Dedicated ensureUserProfile() helper
+  - UPSERT with ignoreDuplicates: true and onConflict: 'id' (race-condition safe)
+  - Structured [DEFENSIVE] warning log with user ID and email
+  - Typed result: EnsureProfileResult discriminated union
+  - Uses createAdminClient() from lib/supabase/admin.ts (service role, bypasses RLS)
+  - Never throws — always returns typed ok/error
+
+- app/(dashboard)/layout.tsx
+  - .single() replaced with .maybeSingle()
+  - Comment updated to reflect recovery happens on first API call
+
+- supabase/migrations/012_backfill_missing_profiles.sql (NEW)
+  - Backfills all auth.users with no public.users row (ON CONFLICT DO NOTHING)
+  - Hardens handle_new_user() with EXCEPTION WHEN OTHERS + RAISE WARNING
+  - Ensures trigger exists (DROP IF EXISTS + CREATE TRIGGER)
+  - Idempotent: safe to run multiple times
+  - Inserts only: id, email, full_name, avatar_url — matches 002_users.sql exactly
+
+---
+
+## Edge Cases
+
+| Case | Handled | How |
+|---|---|---|
+| Concurrent requests | Yes | UPSERT ON CONFLICT DO NOTHING |
+| Missing metadata (full_name, avatar_url) | Yes | Nullable fields, COALESCE in trigger |
+| Trigger failure | Yes | EXCEPTION WHEN OTHERS + WARNING log |
+| Profile exists (happy path) | Yes | maybeSingle() returns row immediately |
+| Backfilled profile | Yes | Same happy path after migration runs |
+| Admin-created account | Yes | No trigger fires, ensureUserProfile() recovers |
+| Future schema changes | Yes | Only id + email required; all others nullable or defaulted |
+
+---
+
+## Lessons Learned
+
+1. Never use .single() when 0 rows is a legitimate outcome.
+   Use .maybeSingle() and handle null explicitly.
+
+2. UPSERT (ON CONFLICT DO NOTHING) is the correct tool for
+   race-condition-safe recovery. Never use plain INSERT.
+
+3. Authentication and profile management are different concerns.
+   Keep them in separate functions with single responsibilities.
+
+4. A silent fallback in the UI can mask a critical API failure.
+   Audit all fallbacks regularly.
+
+5. Always run a database backfill when fixing a trigger gap.
+   Code fixes alone are insufficient for existing affected accounts.
+
+6. The trigger is the primary mechanism. The application fallback
+   is defensive only. Both layers must exist.
 
 ---
 
@@ -383,13 +513,15 @@ Never close a bug without documenting its root cause.
 
 # Current Priority
 
-Highest priority:
+BUG-004 resolved ✅
 
-Finish resolving Friend Account access issue.
+Next priority:
 
-After that:
+Resume MVP Checklist (04_MVP_CHECKLIST.md) until every required item reaches completion.
 
-Resume MVP Checklist until every required item reaches completion.
+Critical Bugs remaining: 0
+
+High Bugs remaining: 0
 
 ---
 
