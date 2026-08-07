@@ -41,8 +41,8 @@ export default async function DashboardLayout({
 
   return (
     // Skip-to-content link for keyboard / screen-reader users
-    <>
-      
+      <>
+      <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded-md focus:text-sm focus:font-medium"
         style={{ background: 'var(--sapphire)', color: '#fff' }}
